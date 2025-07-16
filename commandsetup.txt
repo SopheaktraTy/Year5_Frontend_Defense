@@ -1,0 +1,12 @@
+
+#install axios
+npm install axios
+
+#tailwindcss
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+npm install -D tailwindcss @tailwindcss/postcss autoprefixer
+
+
+#lucide-react
+npm install lucide-react
