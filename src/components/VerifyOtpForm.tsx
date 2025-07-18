@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { verifyOtp } from "../services/authservice"
 import { resendVerifyOtp } from "../services/authservice"
+import { ChevronLeft, CheckCircle, XCircle } from "lucide-react"
+import { jwtDecode } from "jwt-decode"
+import { JwtPayload } from "../types/authtype"
 
 export default function VerifyOtpForm() {
   const router = useRouter()
@@ -14,6 +17,7 @@ export default function VerifyOtpForm() {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+
   useEffect(() => {
     const storedEmail = localStorage.getItem("pendingEmail")
     if (storedEmail) {
@@ -23,7 +27,7 @@ export default function VerifyOtpForm() {
     }
 
     const interval = setInterval(() => {
-      setTimer(prev => (prev > 0 ? prev - 1 : 0))
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0))
     }, 1000)
 
     return () => clearInterval(interval)
@@ -58,11 +62,29 @@ export default function VerifyOtpForm() {
     try {
       const otpCode = otp.join("")
       const res = await verifyOtp({ email, otp: otpCode })
-      setMessage(res.message)
-      localStorage.setItem("accessToken", res.accessToken)
-      localStorage.setItem("refreshToken", res.refreshToken)
-      localStorage.removeItem("pendingEmail")
-      router.push("/")
+
+      const { accessToken, refreshToken } = res
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("accessToken", accessToken)
+        localStorage.setItem("refreshToken", refreshToken)
+        localStorage.removeItem("pendingEmail")
+        const payload = jwtDecode<JwtPayload>(accessToken)
+
+        switch (payload.role) {
+          case "admin":
+            router.push("/admin")
+            break
+          case "customer":
+            router.push("/customer")
+            break
+          default:
+            setError("Unknown role. Cannot redirect.")
+            return
+        }
+
+        setMessage(res.message)
+      }
     } catch (err: any) {
       const msg = err.response?.data?.message
       setError(
@@ -76,7 +98,7 @@ export default function VerifyOtpForm() {
   const handleResend = async () => {
     if (!email) return
     try {
-      await resendVerifyOtp(email)
+      await resendVerifyOtp({ email }) // wrap email in object
       setMessage("Verification code resent to your email.")
       setError("")
       setTimer(60) // Restart timer
@@ -89,15 +111,20 @@ export default function VerifyOtpForm() {
   }
 
   const maskedEmail = email
-    ? email.replace(
-        /(.{2})(.*)(?=@)/,
-        (_, a, b) => `${a}${"*".repeat(b.length)}`
-      )
+    ? email.replace(/(.{2})(.*)(?=@)/, (_, a, b) => `${a}${"*".repeat(b.length)}`)
     : ""
 
   return (
     <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
       <div className="text-center mb-6">
+         <button
+            onClick={() => router.back()}
+            className=" top-4 left-4 flex items-center text-gray-600 hover:text-blue-600 focus:outline-none"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1" />
+            <span className="text-sm font-medium">Back</span>
+         </button>
+  
         <img
           src="/logo/Logo No Text.svg"
           alt="Logo"
@@ -109,6 +136,7 @@ export default function VerifyOtpForm() {
         <p className="text-sm text-gray-500">
           We sent it to <strong>{maskedEmail}</strong>
         </p>
+    
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -126,15 +154,29 @@ export default function VerifyOtpForm() {
               ref={el => {
                 inputRefs.current[index] = el
               }}
-              className="w-12 h-12 text-center border border-gray-300 rounded text-lg focus:ring-2 focus:ring-blue-500"
+              className="w-12 h-12 text-center border border-gray-300 rounded text-lg border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           ))}
         </div>
 
+        {/* Status Messages */}
         {message && (
-          <p className="text-sm text-green-600 text-center">{message}</p>
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl animate-pulse">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <p className="text-green-800 text-sm font-medium">{message}</p>
+            </div>
+          </div>
         )}
-        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-pulse">
+            <div className="flex items-center gap-3">
+              <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <p className="text-red-800 text-sm font-medium">{error}</p>
+            </div>
+          </div>
+        )}
 
         <button
           type="submit"

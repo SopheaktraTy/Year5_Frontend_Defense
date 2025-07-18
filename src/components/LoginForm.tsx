@@ -1,9 +1,11 @@
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 import { login } from "../services/authservice"
-import { LoginDto } from "../types/auth"
+import { LoginDto } from "../types/authtype"
 import { useRouter } from "next/router"
+import { jwtDecode } from "jwt-decode"
+import { JwtPayload } from "../types/authtype"
 
 const LoginForm = () => {
   const [form, setForm] = useState<LoginDto>({
@@ -21,41 +23,66 @@ const LoginForm = () => {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setMessage("")
-    setLoading(true)
+  e.preventDefault();
+  setError("");
+  setMessage("");
 
+  // Optional: skip if already logged in
+  const existingToken = localStorage.getItem("accessToken");
+  if (existingToken) {
     try {
-      const res = await login(form)
-      setMessage(res.message)
+      const payload = jwtDecode<JwtPayload>(existingToken);
+      const role = payload?.role?.toLowerCase();
 
-      // ✅ Save email for OTP verification screen
-      localStorage.setItem("pendingEmail", form.email)
-
-      // ✅ Navigate to OTP verification page
-      router.push("/verify-signup-login-otp")
-    } catch (err: any) {
-      console.error("Login error:", err.response?.data || err.message || err)
-      const msg = err.response?.data?.message
-      setError(Array.isArray(msg) ? msg.join(", ") : msg || "Login failed")
-    } finally {
-      setLoading(false)
+      switch (role) {
+        case "admin":
+          router.push("/admin");
+          return;
+        case "customer":
+          router.push("/customer");
+          return;
+        default:
+          setError("Unknown role. Cannot redirect.");
+          return;
+      }
+    } catch (decodeError) {
+      console.error("JWT decode error:", decodeError);
+      setError("Invalid or expired token.");
+      return;
     }
   }
 
+  setLoading(true);
+
+  try {
+    const res = await login(form);
+    console.log("Login response:", res);
+    setMessage(res.message);
+
+    // 🔐 If login is successful but tokens are not returned yet (waiting for OTP)
+    localStorage.setItem("pendingEmail", form.email); // Store email for verification
+    router.push("/verify-otp"); // Redirect to OTP verification page
+  } catch (err: any) {
+    console.error("Login error:", err.response?.data || err.message || err);
+    const msg = err.response?.data?.message;
+    setError(Array.isArray(msg) ? msg.join(", ") : msg || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen  bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-4">
         {/* Logo */}
         <div className="text-center flex flex-col items-center">
-          <div className="h-24 w-24">
+          <div className="w-full flex flex-col items-center pb-6">
             <Image
               src="/logo/Logo No Text.svg"
               alt="Logo"
-              width={100}
-              height={100}
-              className="rounded-full"
+              width={64}
+              height={64}
+              
             />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Log In</h2>
@@ -73,7 +100,7 @@ const LoginForm = () => {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white py-8 px-8 shadow-lg rounded-lg border border-gray-200 space-y-6"
+          className="bg-white py-8 px-8  shadow-lg rounded-lg border border-gray-200 space-y-6"
         >
           {/* Email */}
           <div>
@@ -96,7 +123,7 @@ const LoginForm = () => {
           </div>
 
           {/* Password Label + Forgot Password Link in same row */}
-          <div>
+          <div className="">
             <div className="flex items-center justify-between mb-1">
               <label
                 htmlFor="password"
@@ -139,11 +166,23 @@ const LoginForm = () => {
 
           {/* Message display */}
           {message && (
-            <p className="text-center text-green-600 text-sm mt-2">{message}</p>
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl animate-pulse">
+              <div className="flex items-center justify-center gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <p className="text-green-800 text-sm font-medium">{message}</p>
+              </div>
+            </div>
           )}
+
           {error && (
-            <p className="text-center text-red-600 text-sm mt-2">{error}</p>
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-pulse">
+              <div className="flex items-center justify-center gap-3">
+                <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                <p className="text-red-800 text-sm font-medium">{error}</p>
+              </div>
+            </div>
           )}
+
 
           {/* Submit */}
           <button

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { signup } from "../services/authservice" // ✅ Check filename case
-import { SignupDto } from "../types/auth"
-import { Eye, EyeOff } from "lucide-react"
+import { SignupDto } from "../types/authtype"
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 
 const SignupForm = () => {
@@ -67,14 +67,14 @@ const SignupForm = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Logo */}
-        <div className="text-center flex flex-col items-center">
-          <div className="h-24 w-24">
+        <div className="text-center flex flex-col items-center ">
+          <div className="w-full flex flex-col items-center pb-6">
             <Image
               src="/logo/Logo No Text.svg"
               alt="Logo"
-              width={100}
-              height={100}
-              className="rounded-full"
+              width={64}
+              height={64}
+              className=""
             />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Sign Up</h2>
@@ -249,13 +249,24 @@ const SignupForm = () => {
             </label>
           </div>
 
-          {/* Messages */}
-          {message && (
-            <p className="text-center text-green-600 text-sm mt-4">{message}</p>
-          )}
-          {error && (
-            <p className="text-center text-red-600 text-sm mt-4">{error}</p>
-          )}
+          {/* Status Messages */}
+        {message && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl animate-pulse">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <p className="text-green-800 text-sm font-medium">{message}</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-pulse">
+            <div className="flex items-center gap-3">
+              <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <p className="text-red-800 text-sm font-medium">{error}</p>
+            </div>
+          </div>
+        )}
 
           {/* Submit Button */}
           <button
