@@ -1,12 +1,12 @@
 // pages/admin/index.tsx
-import AdminLayout from '../../components/layouts/AdminLayout';
+import AdminLayout from '@components/admins/AdminLayout';
 import { useEffect } from 'react';
-import { protectRoute } from '../../lib/protectRoute';
+import { protectRoute } from '@lib/protectRoute';
 
 export default function AdminDashboard() {
-  // useEffect(() => {
-  //   protectRoute({ requiredRole: 'admin', redirectTo: '/forbidden-access' });
-  // }, []);
+  useEffect(() => {
+    protectRoute({ requiredRole: 'admin', redirectTo: '/forbidden-access' });
+  }, []);
 
   return (
     <AdminLayout>

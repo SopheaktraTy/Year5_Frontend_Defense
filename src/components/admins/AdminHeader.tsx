@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
-import { getProfile } from '../services/authservice';
+import { getProfile } from '../../services/authService';
 import Link from 'next/link';
 
 const AdminHeader = () => {
@@ -59,7 +59,7 @@ const AdminHeader = () => {
 
         <div className="flex items-center space-x-3">
           <Link
-              href="/admin/profile"
+              href="/admin/profiles-management"
               className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="User Profile"
             >

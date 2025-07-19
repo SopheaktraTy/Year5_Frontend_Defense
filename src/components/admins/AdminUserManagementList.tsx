@@ -4,8 +4,8 @@ import {
   toggleUserSuspension,
   toggleUserRole,
   deleteUser,
-} from "../services/authservice";
-import { User } from "../types/authtype";
+} from "../../services/authService";
+import { User } from "../../types/authType";
 import {
   Loader2,
   Search,
@@ -220,14 +220,14 @@ const UserManagementList: React.FC = () => {
         <>
           <div className="overflow-x-auto border rounded-lg">
             <table className="min-w-full text-sm text-left">
-              <thead className="bg-gray-100 text-gray-700">
+              <thead className="bg-gray-100 text-gray-600 ">
                 <tr>
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Created</th>
-                  <th className="px-4 py-3">Updated</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                  <th className="px-4 py-3 font-medium">User</th>
+                  <th className="px-4 py-3 font-medium">Role</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Created</th>
+                  <th className="px-4 py-3 font-medium">Updated</th>
+                  <th className="px-4 py-3 text-center font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,6 +256,15 @@ const UserManagementList: React.FC = () => {
                         {new Date(user.updated_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center space-x-2">
+
+                         <button
+                          onClick={() => handleToggleRole(user.id)}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Toggle Role"
+                        >
+                          <UserCog className="w-5 h-5 inline" />
+                        </button>
+
                         <button
                           onClick={() => handleToggleSuspend(user.id)}
                           className={`${
@@ -272,13 +281,7 @@ const UserManagementList: React.FC = () => {
                           )}
                         </button>
 
-                        <button
-                          onClick={() => handleToggleRole(user.id)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="Toggle Role"
-                        >
-                          <UserCog className="w-5 h-5 inline" />
-                        </button>
+                       
 
                         <button
                           onClick={() => handleDeleteUser(user.id)}
@@ -293,8 +296,14 @@ const UserManagementList: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="text-center py-6 text-gray-500">
-                      No users found.
+                    <td colSpan={9} className="text-center py-8 text-gray-500">
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="w-8 h-8 text-gray-300" />
+                        <p>No user found.</p>
+                        {searchTerm && (
+                          <p className="text-sm">Try adjusting your search terms.</p>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )}

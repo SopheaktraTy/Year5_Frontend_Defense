@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { resetPassword } from '../services/authservice';
-import type { ResetPasswordDto } from '../types/authtype';
+import { resetPassword } from '../services/authService';
+import type { ResetPasswordDto } from '../types/authType';
 
 interface ResetPasswordFormProps {
   resetToken: string;

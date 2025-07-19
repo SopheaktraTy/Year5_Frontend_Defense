@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getProfile, updateProfile } from '../services/authservice';
-import { UpdateProfileDto } from '../types/authtype';
+import { getProfile, updateProfile } from '../../services/authService';
+import { UpdateProfileDto } from '../../types/authType';
 import { LoaderCircle, CheckCircle, XCircle, Upload, ChevronDown} from 'lucide-react';
 
-const GeneralSettingsProfile = () => {
+const CustomerGeneralSettingsProfile = () => {
   const [form, setForm] = useState<UpdateProfileDto>({});
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -76,6 +76,10 @@ const GeneralSettingsProfile = () => {
     setLoading(true);
     setMessage('');
     setError('');
+    setTimeout(() => {
+      setMessage('');
+      setError('');
+    }, 3000);
 
     try {
       const disallowedKeys = ['id', 'email', 'is_verified', 'created_at', 'updated_at', 'role_id'];
@@ -116,7 +120,7 @@ const GeneralSettingsProfile = () => {
   }
 
   return (
-    <div className=" mx-auto px-6 py-5 bg-white rounded-lg shadow-md">
+    <div className="w-full px-6 py-5 bg-white rounded-lg shadow-md">
       <h1 className="text-xl font-semibold text-gray-900 mb-4">General Settings</h1>
       {/* Seperator */}
       <div className=" border-t border-gray-200 pb-4"></div>
@@ -269,4 +273,4 @@ const GeneralSettingsProfile = () => {
   );
 };
 
-export default GeneralSettingsProfile;
+export default CustomerGeneralSettingsProfile;

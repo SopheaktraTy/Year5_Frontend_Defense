@@ -1,7 +1,7 @@
 // lib/protectRoute.ts
 import axios from '../utils/axios';
 import { jwtDecode } from 'jwt-decode';
-import { JwtPayload } from '../types/authtype';
+import { JwtPayload } from '../types/authType';
 
 
 interface Options {

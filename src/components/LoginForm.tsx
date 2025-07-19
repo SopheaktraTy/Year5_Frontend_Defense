@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
-import { login } from "../services/authservice"
-import { LoginDto } from "../types/authtype"
+import { login } from "../services/authService"
+import { LoginDto } from "../types/authType"
 import { useRouter } from "next/router"
 import { jwtDecode } from "jwt-decode"
-import { JwtPayload } from "../types/authtype"
+import { JwtPayload } from "../types/authType"
 
 const LoginForm = () => {
   const [form, setForm] = useState<LoginDto>({

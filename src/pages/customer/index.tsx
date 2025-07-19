@@ -1,17 +1,22 @@
+
 // src/pages/index.tsx
 import Head from "next/head";
-import Header from "@components/Header";
-import Footer from "@components/Footer";
+import Header from "@components/customers/CustomerHeader";
+import Footer from "@components/customers/CustomerFooter";
+import { useEffect } from "react";
+import { protectRoute } from '@lib/protectRoute';
 
-export default function GuestHomePage() {
+export default function CustomerHomepage() {
+    useEffect(() => {
+    protectRoute({ requiredRole: 'customer', redirectTo: '/forbidden-access' });
+  }, []);
   return (
     <>
       <Head>
         <title>Monostore | Home</title>
-        <meta name="description" content="Discover premium products and deals at Uminex" />
-        <link rel="icon" href="/logo.png" />
+        <meta name="description" content="Discover premium products and deals at Monostore" />
+        
       </Head>
-
       <Header />
 
       <main className="bg-gray-50 min-h-screen py-12">

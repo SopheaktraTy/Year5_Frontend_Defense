@@ -1,5 +1,5 @@
 // pages/verify-signup-login-otp.tsx
-import VerifyOtpForm from "../components/VerifyOtpForm"
+import VerifyOtpForm from "@components/VerifyOtpForm"
 
 export default function VerifyOtpPage() {
   return (

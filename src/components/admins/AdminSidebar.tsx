@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { LayoutDashboard, UserCheck, User } from 'lucide-react';
+import { LayoutDashboard, UserCheck, Tags, Store } from 'lucide-react';
 
-const Sidebar = () => {
+const AdminSidebar = () => {
   const router = useRouter();
 
   const menuItems = [
@@ -14,16 +14,28 @@ const Sidebar = () => {
       category: ''
     },
     {
-      label: 'User Management',
+      label: 'Users Management',
       icon: UserCheck,
-      href: '/admin/user-management',
+      href: '/admin/users-management',
+      category: 'Management'
+    },
+    {
+      label: 'Categories Management',
+      icon: Tags,
+      href: '/admin/categories-management',
+      category: ''
+    },
+    {
+      label: 'Products Management',
+      icon:  Store,
+      href: '/admin/products-management',
       category: ''
     },
    
   ];
 
   return (
-    <div className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-70 min-h-screen bg-white border-r border-gray-200 flex flex-col">
       {/* Logo Section */}
       <div className="px-6 pt-10 pb-6 ">
         <div className="flex items-center justify-center">
@@ -72,4 +84,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

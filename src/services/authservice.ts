@@ -1,5 +1,5 @@
 import API from "../utils/axios"
-import { SignupDto, LoginDto, VerifySignupLoginOtpDto, ForgotPasswordDto, ResendVerifyOtpDto, ResetPasswordDto, UpdateProfileDto, ChangePasswordDto} from "../types/authtype"
+import { SignupDto, LoginDto, VerifySignupLoginOtpDto, ForgotPasswordDto, ResendVerifyOtpDto, ResetPasswordDto, UpdateProfileDto, ChangePasswordDto} from "../types/authType"
 
 const getToken = () => localStorage.getItem("accessToken");
 // This function is used to get the token from localStorage

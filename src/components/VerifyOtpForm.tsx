@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
-import { verifyOtp } from "../services/authservice"
-import { resendVerifyOtp } from "../services/authservice"
+import { verifyOtp } from "@services/authService"
+import { resendVerifyOtp } from "@services/authService"
 import { ChevronLeft, CheckCircle, XCircle } from "lucide-react"
 import { jwtDecode } from "jwt-decode"
-import { JwtPayload } from "../types/authtype"
+import { JwtPayload } from "../types/authType"
 
 export default function VerifyOtpForm() {
   const router = useRouter()

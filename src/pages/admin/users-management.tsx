@@ -1,8 +1,8 @@
 import React from 'react';
-import AdminLayout from '../../components/layouts/AdminLayout';
-import { protectRoute } from '../../lib/protectRoute';
+import AdminLayout from '@components/admins/AdminLayout';
+import { protectRoute } from '@lib/protectRoute';
 import { useEffect } from 'react';
-import AdminUserManagementList from '../../components/AdminUserManagementList';
+import AdminUserManagementList from '@components/admins/AdminUserManagementList';
 
 const UserManagement = () => {
   useEffect(() => {
@@ -11,7 +11,7 @@ const UserManagement = () => {
     
   return (
     <AdminLayout>
-      <div className="">
+      <div >
         <h1 className="text-2xl font-bold ">User Management</h1>
         <p className="text-xs font-semibold mb-4 text-gray-500">Manage all users in one place</p>
         <AdminUserManagementList/>

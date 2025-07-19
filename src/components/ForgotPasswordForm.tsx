@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { forgotPassword } from '../services/authservice'
+import { forgotPassword } from '../services/authService'
 import { ArrowRight, CheckCircle, XCircle, Mail } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'

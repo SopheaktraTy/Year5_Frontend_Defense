@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { signup } from "../services/authservice" // ✅ Check filename case
-import { SignupDto } from "../types/authtype"
+import { signup } from "../services/authService" // ✅ Check filename case
+import { SignupDto } from "../types/authType"
 import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
 

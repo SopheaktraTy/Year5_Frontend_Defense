@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { changePassword } from '../services/authService';
-import { ChangePasswordDto } from '../types/authType';
+import { changePassword } from '@services/authService';
+import { ChangePasswordDto } from '../../types/authType';
 import {
   LoaderCircle,
   CheckCircle,
@@ -10,7 +10,7 @@ import {
   EyeOff
 } from 'lucide-react';
 
-const ChangePasswordForm = () => {
+const CustomerChangePasswordForm = () => {
   const [form, setForm] = useState<ChangePasswordDto>({
     oldpassword: '',
     newpassword: ''
@@ -32,7 +32,11 @@ const ChangePasswordForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setMessage('');
+    setMessage('')
+    setTimeout(() => {
+      setMessage('');
+      setError('');
+    }, 3000);
 
     // Validation
     if (!form.oldpassword || !form.newpassword || !confirmPassword) {
@@ -67,7 +71,7 @@ const ChangePasswordForm = () => {
   };
 
   return (
-    <div className="max-w-screen mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
+    <div className=" w-full bg-white p-6 rounded-lg shadow-md ">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
       {/* Seperator */}
       <div className=" border-t border-gray-200 pb-7"></div>
@@ -157,4 +161,4 @@ const ChangePasswordForm = () => {
   );
 };
 
-export default ChangePasswordForm;
+export default CustomerChangePasswordForm ;

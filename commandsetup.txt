@@ -10,3 +10,7 @@ npm install -D tailwindcss @tailwindcss/postcss autoprefixer
 
 #lucide-react
 npm install lucide-react
+
+npm install dayjs
+
+npm instal ms
