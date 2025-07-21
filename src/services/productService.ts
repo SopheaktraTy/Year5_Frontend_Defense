@@ -21,7 +21,7 @@ export const getAllProducts = async () => {
 
 export const getProductById = async (productId: string) => {
   const response = await API.get(`/products/view-a-product/${productId}`, authHeader());
-  return response.data;
+   return response.data.data || response.data;
 };
 
 export const updateProduct = async (productId: string, updateData:  Partial<UpdateProductDto>) => {

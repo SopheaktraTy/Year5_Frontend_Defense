@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ShoppingCart } from 'lucide-react';
+import { ChevronDown, ShoppingCart, BadgePercent } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getProfile } from '@services/authService';
@@ -99,18 +99,27 @@ const CustomerHeader = () => {
               width: '200%', // container twice the width for seamless loop
             }}
           >
-            <div className="flex w-4/6">
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
+            <div className="flex w-max">
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+               <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+               <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+              <span className="mx-4 text-xs flex flex-rol items-center justify-center gap-1.5"><BadgePercent size={14} /> Special offer: enjoy 3 months of shopping for $1/month</span>
+            
             </div>
-            <div className="flex w-4/6">
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-              <span className="mx-4">📞 Special offer: enjoy 3 months of shopping for $1/month</span>
-            </div>
+    
           </div>
         </div>
  

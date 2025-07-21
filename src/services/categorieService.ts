@@ -16,18 +16,12 @@ export const createCategory = async (data: CreateCategoryDto) => {
 
 export const getAllCategories = async () => {
   const response = await API.get('/categories/view-all-categories', {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
   });
   return response.data;
 };
 
 export const getCategoryById = async (categoryId: string) => {
   const response = await API.get(`/categories/view-a-category/${categoryId}`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
   });
   return response.data;
 };

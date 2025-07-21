@@ -16,5 +16,25 @@ export interface CategoryDto {
   id: string;
   category_name: string;
   image?: string;
-  total_quantity?: number;
+}
+
+// Types
+export interface ProductInCategory {
+  id: string;
+  product_name: string;
+  description: string;
+  original_price: number;
+  discounted_price: number;
+  total_quantity: number;
+  discount_percentage_tag: number;
+  created_at: string;
+  updated_at: string;
+  image: string;
+}
+
+export interface CategoryWithProductsDto {
+  id: string;
+  category_name: string;
+  description: string;
+  products: ProductInCategory[];
 }

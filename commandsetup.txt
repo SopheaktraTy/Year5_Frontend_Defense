@@ -14,3 +14,5 @@ npm install lucide-react
 npm install dayjs
 
 npm instal ms
+
+npm install tailwind-scrollbar-hide
