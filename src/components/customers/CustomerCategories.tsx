@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { getAllCategories } from '../../services/categorieService';
-import { CategoryDto } from '../../types/categoriesType';
+import { getAllCategories } from '../../services/categoryService';
+import { CategoryDto } from '../../types/categoryType';
 
 const CategoriesComponent = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);

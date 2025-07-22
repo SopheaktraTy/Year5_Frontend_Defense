@@ -6,8 +6,8 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-} from '../../services/categorieService';
-import { CreateCategoryDto, UpdateCategoryDto } from '../../types/categoriesType';
+} from '../../services/categoryService';
+import { CreateCategoryDto, UpdateCategoryDto } from '../../types/categoryType';
 import { Plus, Pencil, Trash2, CheckCircle, XCircle, Search, Upload, X, Eye } from 'lucide-react';
 import Image from 'next/image';
 import dayjs from 'dayjs';

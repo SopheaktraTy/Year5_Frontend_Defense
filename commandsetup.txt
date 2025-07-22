@@ -16,3 +16,7 @@ npm install dayjs
 npm instal ms
 
 npm install tailwind-scrollbar-hide
+
+npm install tailwind-scrollbar-hide @tailwindcss/line-clamp
+
+react-hot-toast

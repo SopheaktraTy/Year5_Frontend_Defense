@@ -25,49 +25,48 @@ export interface ForgotPasswordDto {
 }
 
 export interface ResetPasswordDto {
-  resetToken: string;
-  newPassword: string;
+  resetToken: string
+  newPassword: string
 }
 
 export type UpdateProfileDto = {
-  firstname?: string;
-  lastname?: string;
-  gender?: string;
-  phone_number?: string;
-  date_of_birth?: string;
-  image?: string;
-  email?: string;
-};
+  firstname?: string
+  lastname?: string
+  gender?: string
+  phone_number?: string
+  date_of_birth?: string
+  image?: string
+  email?: string
+}
 
 export interface ChangePasswordDto {
-  oldpassword: string;
-  newpassword: string;
+  oldpassword: string
+  newpassword: string
 }
 
 export interface JwtPayload {
-    email: string
-    sub: string
-    role?: string
-    iat: number
-    exp: number
-  }
+  email: string
+  sub: string
+  role?: string
+  iat: number
+  exp: number
+}
 
 export interface User {
-  id: string;
-  email: string;
-  firstname?: string;
-  lastname?: string;
-  gender?: string;
-  phone_number?: number | null;
-  date_of_birth?: string | null; // ISO string
-  status: 'active' | 'not_verified' | 'suspended';
+  id: string
+  email: string
+  firstname?: string
+  lastname?: string
+  gender?: string
+  phone_number?: number | null
+  date_of_birth?: string | null // ISO string
+  status: "active" | "not_verified" | "suspended"
   role: {
-    id: string;
-    name: string;
-    description?: string;
-  };
-  image?: string | null;
-  created_at: string; // ISO string
-  updated_at: string; // ISO string_
-
+    id: string
+    name: string
+    description?: string
+  }
+  image?: string | null
+  created_at: string // ISO string
+  updated_at: string // ISO string_
 }

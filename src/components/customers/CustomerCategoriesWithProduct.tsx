@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { getCategoryById, getAllCategories } from '../../services/categorieService';
-import { CategoryDto, CategoryWithProductsDto } from '../../types/categoriesType';
+import { getCategoryById, getAllCategories } from '../../services/categoryService';
+import { CategoryDto, CategoryWithProductsDto } from '../../types/categoryType';
 import ProductCard from '../customers/CustomerProductCard';
 import CategoriesSidebar from './CustomerCategoriesSidebar';
 

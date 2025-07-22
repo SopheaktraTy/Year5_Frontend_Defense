@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import {
   getAllUsers,
   toggleUserSuspension,
   toggleUserRole,
-  deleteUser,
-} from "../../services/authService";
-import { User } from "../../types/authType";
+  deleteUser
+} from "../../services/authService"
+import { User } from "../../types/authType"
 import {
   Loader2,
   Search,
@@ -14,174 +14,179 @@ import {
   UserX,
   UserCheck,
   UserCog,
-  Trash2,
-} from "lucide-react";
-import { jwtDecode } from "jwt-decode";
+  Trash2
+} from "lucide-react"
+import { jwtDecode } from "jwt-decode"
 
-const ADMIN_ID = "dfc7b04c-d0d1-412f-bbf8-77074a4fb719";
+const ADMIN_ID = "dfc7b04c-d0d1-412f-bbf8-77074a4fb719"
 
 const getCurrentUserId = () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return null;
+  const token = localStorage.getItem("accessToken")
+  if (!token) return null
   try {
-    const decoded: any = jwtDecode(token);
-    return decoded.sub || decoded.id;
+    const decoded: any = jwtDecode(token)
+    return decoded.sub || decoded.id
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 const UserManagementList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterType, setFilterType] = useState("all")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(8)
 
   useEffect(() => {
     if (message || errorMessage) {
       const timeout = setTimeout(() => {
-        setMessage("");
-        setErrorMessage("");
-      }, 4000);
-      return () => clearTimeout(timeout);
+        setMessage("")
+        setErrorMessage("")
+      }, 4000)
+      return () => clearTimeout(timeout)
     }
-  }, [message, errorMessage]);
+  }, [message, errorMessage])
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await getAllUsers();
-        setUsers(res);
-        setFilteredUsers(res);
+        const res = await getAllUsers()
+        setUsers(res)
+        setFilteredUsers(res)
       } catch (err) {
-        setError("Failed to load users");
-        console.error(err);
+        setError("Failed to load users")
+        console.error(err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchUsers();
-  }, []);
+    }
+    fetchUsers()
+  }, [])
 
   useEffect(() => {
-    let filtered = users;
+    let filtered = users
 
     if (searchTerm) {
-      const lowerTerm = searchTerm.toLowerCase();
+      const lowerTerm = searchTerm.toLowerCase()
       filtered = filtered.filter(
-        (user) =>
-          `${user.firstname} ${user.lastname}`.toLowerCase().includes(lowerTerm) ||
-          user.email.toLowerCase().includes(lowerTerm)
-      );
+        user =>
+          `${user.firstname} ${user.lastname}`
+            .toLowerCase()
+            .includes(lowerTerm) || user.email.toLowerCase().includes(lowerTerm)
+      )
     }
 
     switch (filterType) {
       case "suspended":
-        filtered = filtered.filter((user) => user.status === "suspended");
-        break;
+        filtered = filtered.filter(user => user.status === "suspended")
+        break
       case "not_verified":
-        filtered = filtered.filter((user) => user.status === "not_verified");
-        break;
+        filtered = filtered.filter(user => user.status === "not_verified")
+        break
       case "admin":
-        filtered = filtered.filter((user) => user.role?.name === "admin");
-        break;
+        filtered = filtered.filter(user => user.role?.name === "admin")
+        break
       case "customer":
-        filtered = filtered.filter((user) => user.role?.name === "customer");
-        break;
+        filtered = filtered.filter(user => user.role?.name === "customer")
+        break
       default:
-        break;
+        break
     }
 
-    setFilteredUsers(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, filterType, users]);
+    setFilteredUsers(filtered)
+    setCurrentPage(1)
+  }, [searchTerm, filterType, users])
 
-  const totalItems = filteredUsers.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalItems = filteredUsers.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  );
+  )
 
   const handleToggleSuspend = async (userId: string) => {
-    setMessage("");
-    setErrorMessage("");
+    setMessage("")
+    setErrorMessage("")
     try {
-      const res = await toggleUserSuspension(userId);
-      const updatedStatus = res.user?.status;
-      const updated = users.map((user) =>
+      const res = await toggleUserSuspension(userId)
+      const updatedStatus = res.user?.status
+      const updated = users.map(user =>
         user.id === userId ? { ...user, status: updatedStatus } : user
-      );
-      setUsers(updated);
-      setMessage(res.message || "User status updated successfully.");
+      )
+      setUsers(updated)
+      setMessage(res.message || "User status updated successfully.")
     } catch (err: any) {
       const errMsg =
-        err?.response?.data?.message || "Failed to update user status.";
-      setErrorMessage(errMsg);
+        err?.response?.data?.message || "Failed to update user status."
+      setErrorMessage(errMsg)
     }
-  };
+  }
 
   const handleToggleRole = async (userId: string) => {
-    const currentUserId = getCurrentUserId();
-    if (!userId) return setErrorMessage("User ID is missing.");
-    if (userId === currentUserId) return setErrorMessage("You cannot change your own role.");
+    const currentUserId = getCurrentUserId()
+    if (!userId) return setErrorMessage("User ID is missing.")
+    if (userId === currentUserId)
+      return setErrorMessage("You cannot change your own role.")
 
-    setLoading(true);
-    setMessage("");
-    setErrorMessage("");
+    setLoading(true)
+    setMessage("")
+    setErrorMessage("")
     try {
-      const res = await toggleUserRole(userId);
-      setMessage(res.message || "User role updated.");
-      setUsers((prevUsers) =>
-        prevUsers.map((user) => {
+      const res = await toggleUserRole(userId)
+      setMessage(res.message || "User role updated.")
+      setUsers(prevUsers =>
+        prevUsers.map(user => {
           if (user.id === userId) {
             return {
               ...user,
               role: {
                 ...user.role,
                 id: res.newRoleId,
-                name: res.newRoleId === ADMIN_ID ? "admin" : "customer",
-              },
-            };
+                name: res.newRoleId === ADMIN_ID ? "admin" : "customer"
+              }
+            }
           }
-          return user;
+          return user
         })
-      );
+      )
     } catch (err: any) {
       setErrorMessage(
         err?.response?.data?.message || err?.message || "Failed to update role."
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDeleteUser = async (userId: string) => {
-  if (!userId) return setErrorMessage("User ID is missing.");
-  if (!window.confirm("Are you sure you want to delete this user?")) return;
-  setLoading(true);
-  setMessage("");
-  setErrorMessage("");
-  try {
-    const res = await deleteUser(userId);
-    setMessage(`🗑️ <strong>${res.email || res.userId}</strong> has been <span class="text-red-600 font-semibold">deleted</span> successfully.`);
-    setUsers((prev) => prev.filter((user) => user.id !== userId));
-  } catch (err: any) {
-    setErrorMessage(
-      err?.response?.data?.message || err?.message || "Failed to delete user."
-    );
-  } finally {
-    setLoading(false);
+    if (!userId) return setErrorMessage("User ID is missing.")
+    if (!window.confirm("Are you sure you want to delete this user?")) return
+    setLoading(true)
+    setMessage("")
+    setErrorMessage("")
+    try {
+      const res = await deleteUser(userId)
+      setMessage(
+        `🗑️ <strong>${
+          res.email || res.userId
+        }</strong> has been <span class="text-red-600 font-semibold">deleted</span> successfully.`
+      )
+      setUsers(prev => prev.filter(user => user.id !== userId))
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.message || err?.message || "Failed to delete user."
+      )
+    } finally {
+      setLoading(false)
+    }
   }
-};
-
 
   return (
     <div className="space-y-4 bg-white p-6 rounded-lg shadow-md">
@@ -193,14 +198,14 @@ const UserManagementList: React.FC = () => {
             placeholder="Search users..."
             className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
 
         <select
           className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          onChange={e => setFilterType(e.target.value)}
         >
           <option value="all">All Users</option>
           <option value="admin">Admin Role</option>
@@ -232,7 +237,7 @@ const UserManagementList: React.FC = () => {
               </thead>
               <tbody>
                 {paginatedUsers.length > 0 ? (
-                  paginatedUsers.map((user) => (
+                  paginatedUsers.map(user => (
                     <tr key={user.id} className="border-b hover:bg-gray-50">
                       <td className="px-4 py-3 flex items-center gap-3">
                         <img
@@ -244,10 +249,14 @@ const UserManagementList: React.FC = () => {
                           <div className="font-medium text-gray-900">
                             {user.firstname} {user.lastname}
                           </div>
-                          <div className="text-gray-500 text-xs">{user.email}</div>
+                          <div className="text-gray-500 text-xs">
+                            {user.email}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 capitalize">{user.role?.name || "-"}</td>
+                      <td className="px-4 py-3 capitalize">
+                        {user.role?.name || "-"}
+                      </td>
                       <td className="px-4 py-3 capitalize">{user.status}</td>
                       <td className="px-4 py-3 text-xs text-gray-500">
                         {new Date(user.created_at).toLocaleString()}
@@ -256,8 +265,7 @@ const UserManagementList: React.FC = () => {
                         {new Date(user.updated_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center space-x-2">
-
-                         <button
+                        <button
                           onClick={() => handleToggleRole(user.id)}
                           className="text-blue-600 hover:text-blue-800"
                           title="Toggle Role"
@@ -272,7 +280,11 @@ const UserManagementList: React.FC = () => {
                               ? "text-green-600 hover:text-green-800"
                               : "text-red-600 hover:text-red-800"
                           }`}
-                          title={user.status === "suspended" ? "Activate User" : "Suspend User"}
+                          title={
+                            user.status === "suspended"
+                              ? "Activate User"
+                              : "Suspend User"
+                          }
                         >
                           {user.status === "suspended" ? (
                             <UserCheck className="w-5 h-5 inline" />
@@ -280,8 +292,6 @@ const UserManagementList: React.FC = () => {
                             <UserX className="w-5 h-5 inline" />
                           )}
                         </button>
-
-                       
 
                         <button
                           onClick={() => handleDeleteUser(user.id)}
@@ -291,7 +301,6 @@ const UserManagementList: React.FC = () => {
                           <Trash2 className="w-5 h-5 inline" />
                         </button>
                       </td>
-
                     </tr>
                   ))
                 ) : (
@@ -301,7 +310,9 @@ const UserManagementList: React.FC = () => {
                         <Search className="w-8 h-8 text-gray-300" />
                         <p>No user found.</p>
                         {searchTerm && (
-                          <p className="text-sm">Try adjusting your search terms.</p>
+                          <p className="text-sm">
+                            Try adjusting your search terms.
+                          </p>
                         )}
                       </div>
                     </td>
@@ -323,7 +334,9 @@ const UserManagementList: React.FC = () => {
             <div className="rounded-md bg-red-50 p-4 border border-red-200">
               <div className="flex items-start">
                 <XCircle className="h-5 w-5 text-red-400 mt-0.5 mr-3" />
-                <p className="text-sm font-medium text-red-800">{errorMessage}</p>
+                <p className="text-sm font-medium text-red-800">
+                  {errorMessage}
+                </p>
               </div>
             </div>
           )}
@@ -333,13 +346,13 @@ const UserManagementList: React.FC = () => {
               <span>Show</span>
               <select
                 value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
+                onChange={e => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
                 }}
                 className="border rounded px-2 py-1"
               >
-                {[5, 8, 10, 20].map((num) => (
+                {[5, 8, 10, 20].map(num => (
                   <option key={num} value={num}>
                     {num}
                   </option>
@@ -351,13 +364,14 @@ const UserManagementList: React.FC = () => {
             <div className="flex items-center gap-1 mt-3 sm:mt-0">
               <span className="mr-2">
                 {(currentPage - 1) * itemsPerPage + 1}-
-                {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
+                {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                {totalItems}
               </span>
 
               <button
                 className="px-2 py-1 disabled:text-gray-400"
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
+                onClick={() => setCurrentPage(p => p - 1)}
               >
                 ←
               </button>
@@ -377,7 +391,7 @@ const UserManagementList: React.FC = () => {
               <button
                 className="px-2 py-1 disabled:text-gray-400"
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
+                onClick={() => setCurrentPage(p => p + 1)}
               >
                 →
               </button>
@@ -386,7 +400,7 @@ const UserManagementList: React.FC = () => {
         </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default UserManagementList;
+export default UserManagementList

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react"
 
 interface FilterProps {
-  categories: { id: string; name: string }[];
-  selectedCategoryId?: string;
-  onCategoryChange: (id: string) => void;
-  onPriceChange: (min: number, max: number) => void;
-  onAvailabilityChange: (availability: 'in' | 'out' | null) => void;
-  onDiscountChange: (range: 'low' | 'high' | null) => void; 
+  categories: { id: string; name: string }[]
+  selectedCategoryId?: string
+  onCategoryChange: (id: string) => void
+  onPriceChange: (min: number, max: number) => void
+  onAvailabilityChange: (availability: "in" | "out" | null) => void
+  onDiscountChange: (range: "low" | "high" | null) => void
 }
 
 const CategoriesSidebar: React.FC<FilterProps> = ({
@@ -15,54 +15,59 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
   onCategoryChange,
   onPriceChange,
   onAvailabilityChange,
-  onDiscountChange,
+  onDiscountChange
 }) => {
-  const [priceFrom, setPriceFrom] = useState('');
-  const [priceTo, setPriceTo] = useState('');
-  const [availability, setAvailability] = useState<'in' | 'out' | null>(null);
-  const [discount, setDiscount] = useState<'low' | 'high' | null>(null);
+  const [priceFrom, setPriceFrom] = useState("")
+  const [priceTo, setPriceTo] = useState("")
+  const [availability, setAvailability] = useState<"in" | "out" | null>(null)
+  const [discount, setDiscount] = useState<"low" | "high" | null>(null)
 
   const handlePriceSubmit = () => {
-    const min = parseFloat(priceFrom) || 0;
-    const max = parseFloat(priceTo) || 10000;
-    onPriceChange(min, max);
-  };
+    const min = parseFloat(priceFrom) || 0
+    const max = parseFloat(priceTo) || 10000
+    onPriceChange(min, max)
+  }
 
-  const handleAvailabilityChange = (value: 'in' | 'out') => {
-    const newValue = availability === value ? null : value;
-    setAvailability(newValue);
-    onAvailabilityChange(newValue);
-  };
+  const handleAvailabilityChange = (value: "in" | "out") => {
+    const newValue = availability === value ? null : value
+    setAvailability(newValue)
+    onAvailabilityChange(newValue)
+  }
 
-  const handleDiscountChange = (value: 'low' | 'high') => {
-    const newValue = discount === value ? null : value;
-    setDiscount(newValue);
-    onDiscountChange(newValue);
-  };
+  const handleDiscountChange = (value: "low" | "high") => {
+    const newValue = discount === value ? null : value
+    setDiscount(newValue)
+    onDiscountChange(newValue)
+  }
 
   return (
     <aside className="w-full max-w-xs bg-white rounded-lg">
       <div className="p-7">
         {/* Categories */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 ">
+          <h3 className="text-base font-bold text-gray-900 mb-4 ">
             PRODUCT CATEGORIES
           </h3>
           <div className="space-y-2">
             {Array.isArray(categories) && categories.length > 0 ? (
-              categories.map((cat) => (
-                <label key={cat.id} className="flex items-center cursor-pointer group">
+              categories.map(cat => (
+                <label
+                  key={cat.id}
+                  className="flex items-center cursor-pointer group"
+                >
                   <input
                     type="checkbox"
                     checked={selectedCategoryId === cat.id}
                     onChange={() => onCategoryChange(cat.id)}
                     className="w-4 h-4 text-blue-600 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
                   />
-                  <span className={`ml-3 text-base  ${
-                    selectedCategoryId === cat.id 
-                      ? 'text-blue-600 font-medium' 
-                      : 'text-gray-700 group-hover:text-gray-900'
-                  }`}>
+                  <span
+                    className={`ml-3 text-sm  ${
+                      selectedCategoryId === cat.id
+                        ? "text-blue-600 font-medium"
+                        : "text-gray-700 group-hover:text-gray-900"
+                    }`}
+                  >
                     {cat.name}
                   </span>
                 </label>
@@ -75,23 +80,21 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
 
         {/* Price Filter */}
         <div className="mb-8 ">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 ">
-            PRICE
-          </h3>
+          <h3 className="text-base font-bold text-gray-900 mb-4 ">PRICE</h3>
           <div className="space-y-3">
             <div className="flex gap-2 ">
               <input
                 type="number"
                 placeholder="From"
                 value={priceFrom}
-                onChange={(e) => setPriceFrom(e.target.value)}
+                onChange={e => setPriceFrom(e.target.value)}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full"
               />
               <input
                 type="number"
                 placeholder="To"
                 value={priceTo}
-                onChange={(e) => setPriceTo(e.target.value)}
+                onChange={e => setPriceTo(e.target.value)}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full"
               />
             </div>
@@ -106,29 +109,29 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
 
         {/* Availability */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 ">
+          <h3 className="text-base font-bold text-gray-900 mb-4 ">
             AVAILABILITY
           </h3>
           <div className="space-y-2">
             <label className="flex items-center cursor-pointer group">
               <input
                 type="checkbox"
-                checked={availability === 'in'}
-                onChange={() => handleAvailabilityChange('in')}
+                checked={availability === "in"}
+                onChange={() => handleAvailabilityChange("in")}
                 className="w-4 h-4 text-green-600 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:ring-offset-0"
               />
-              <span className="ml-3 text-base text-gray-700 group-hover:text-gray-900">
+              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
                 In stock
               </span>
             </label>
             <label className="flex items-center cursor-pointer group">
               <input
                 type="checkbox"
-                checked={availability === 'out'}
-                onChange={() => handleAvailabilityChange('out')}
+                checked={availability === "out"}
+                onChange={() => handleAvailabilityChange("out")}
                 className="w-4 h-4 text-red-600 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:ring-offset-0"
               />
-              <span className="ml-3 text-base text-gray-700 group-hover:text-gray-900">
+              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
                 Out of stock
               </span>
             </label>
@@ -137,29 +140,27 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
 
         {/* Discount Filter */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 ">
-            DISCOUNT
-          </h3>
+          <h3 className="text-base font-bold text-gray-900 mb-4 ">DISCOUNT</h3>
           <div className="space-y-2">
             <label className="flex items-center cursor-pointer group">
               <input
                 type="checkbox"
-                checked={discount === 'low'}
-                onChange={() => handleDiscountChange('low')}
+                checked={discount === "low"}
+                onChange={() => handleDiscountChange("low")}
                 className="w-4 h-4 text-orange-600 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:ring-offset-0"
               />
-              <span className="ml-3 text-base text-gray-700 group-hover:text-gray-900">
+              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
                 0% - 50%
               </span>
             </label>
             <label className="flex items-center cursor-pointer group">
               <input
                 type="checkbox"
-                checked={discount === 'high'}
-                onChange={() => handleDiscountChange('high')}
+                checked={discount === "high"}
+                onChange={() => handleDiscountChange("high")}
                 className="w-4 h-4 text-red-600 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:ring-offset-0"
               />
-              <span className="ml-3 text-base text-gray-700 group-hover:text-gray-900">
+              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
                 Above 50%
               </span>
             </label>
@@ -170,12 +171,12 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
         <div className="pt-4 border-t border-gray-200">
           <button
             onClick={() => {
-              setPriceFrom('');
-              setPriceTo('');
-              setAvailability(null);
-              setDiscount(null);
-              onAvailabilityChange(null);
-              onDiscountChange(null);
+              setPriceFrom("")
+              setPriceTo("")
+              setAvailability(null)
+              setDiscount(null)
+              onAvailabilityChange(null)
+              onDiscountChange(null)
             }}
             className="w-full px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
@@ -184,7 +185,7 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
         </div>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default CategoriesSidebar;
+export default CategoriesSidebar

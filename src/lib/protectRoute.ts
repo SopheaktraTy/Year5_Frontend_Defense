@@ -1,70 +1,105 @@
-// lib/protectRoute.ts
-import axios from '../utils/axios';
-import { jwtDecode } from 'jwt-decode';
-import { JwtPayload } from '../types/authType';
-
+import { jwtDecode } from "jwt-decode"
+import { JwtPayload, User } from "../types/authType"
+import { getProfile } from "../services/authService"
+import axios from "../utils/axios"
 
 interface Options {
-  requiredRole?: string; // e.g. 'admin'
-  redirectTo?: string;   // default: '/signup'
+  requiredRole?: string // e.g. 'admin'
+  redirectTo?: string // default: '/login'
 }
 
 export const protectRoute = async (options: Options = {}): Promise<void> => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return
 
-  const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
-  const redirectTo = options.redirectTo || '/signup';
+  const accessToken = localStorage.getItem("accessToken")
+  const refreshToken = localStorage.getItem("refreshToken")
+  const redirectTo = options.redirectTo || "/login"
 
   if (!accessToken || !refreshToken) {
-    redirectToSignup();
-    return;
+    console.warn("[protectRoute] No tokens found.")
+    redirectToPage(redirectTo)
+    return
   }
 
   try {
-    // Decode token to check role
-    const decoded = jwtDecode<JwtPayload>(accessToken);
+    const decoded = jwtDecode<JwtPayload>(accessToken)
+    const now = Date.now() / 1000
+
+    if (decoded.exp < now) throw new Error("Access token expired")
+
+    console.log("[protectRoute] User ID from token:", decoded.sub)
+    console.log("[protectRoute] Role from token:", decoded.role)
+
     if (options.requiredRole && decoded.role !== options.requiredRole) {
-      redirectToSignup();
-      return;
+      console.warn("[protectRoute] Role mismatch.")
+      alert(`Access denied. Required role: ${options.requiredRole}`)
+      redirectToPage(redirectTo)
+      return
     }
 
-    // Optional: check if token is near expiry
-    const now = Date.now() / 1000;
-    if (decoded.exp < now) throw new Error('Token expired');
+    const user: User = await getProfile()
+    console.log("[protectRoute] User profile:", user)
 
-    // Verify access token via API
-    await axios.get('/auth/check-token', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    if (user.status === "suspended") {
+      console.warn("[protectRoute] User is suspended.")
+      alert("Your account has been suspended.")
+      redirectToPage(redirectTo)
+      return
+    }
 
-    return; // Valid token
-  } catch (err: any) {
-    // Try refreshing
+    console.log("[protectRoute] ✅ Access granted")
+    return
+  } catch (err) {
+    console.warn(
+      "[protectRoute] Token check failed. Attempting refresh...",
+      err
+    )
+
     try {
-      const res = await axios.post('/auth/refresh-token', {
-        refreshtoken: refreshToken,
-      });
+      const res = await axios.post("/auth/refresh-token", {
+        refreshtoken: refreshToken
+      })
 
-      localStorage.setItem('accessToken', res.data.AccessToken);
-      localStorage.setItem('refreshToken', res.data.RefreshToken);
+      const newAccessToken = res.data.AccessToken
+      const newRefreshToken = res.data.RefreshToken
 
-      // Check role again after refresh
-      const decoded = jwtDecode<JwtPayload>(res.data.AccessToken);
+      localStorage.setItem("accessToken", newAccessToken)
+      localStorage.setItem("refreshToken", newRefreshToken)
+
+      const decoded = jwtDecode<JwtPayload>(newAccessToken)
+      if (decoded.exp < Date.now() / 1000) throw new Error("New token expired")
+
+      console.log("[protectRoute] Refreshed token for user:", decoded.sub)
+      console.log("[protectRoute] Refreshed role:", decoded.role)
+
       if (options.requiredRole && decoded.role !== options.requiredRole) {
-        redirectToSignup();
-        return;
+        console.warn("[protectRoute] Role mismatch after refresh.")
+        alert(`Access denied. Required role: ${options.requiredRole}`)
+        redirectToPage(redirectTo)
+        return
       }
 
-      return;
-    } catch {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      redirectToSignup();
+      const user: User = await getProfile()
+      console.log("[protectRoute] User profile after refresh:", user)
+
+      if (user.status === "suspended") {
+        console.warn("[protectRoute] User is suspended after refresh.")
+        alert("Your account has been suspended.")
+        redirectToPage(redirectTo)
+        return
+      }
+
+      console.log("[protectRoute] ✅ Access granted after refresh")
+      return
+    } catch (refreshErr) {
+      console.error("[protectRoute] Token refresh failed:", refreshErr)
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+      redirectToPage(redirectTo)
     }
   }
 
-  function redirectToSignup() {
-    window.location.href = redirectTo;
+  function redirectToPage(path: string) {
+    window.location.href = path
   }
-};
+}
