@@ -10,7 +10,7 @@ import { getAllCategories } from "@services/categoryService"
 import { useRouter } from "next/router"
 import { CategoryDto } from "../../types/categoryType"
 
-const CustomerHeader = () => {
+const CustomerHeaderComponent = () => {
   const router = useRouter()
 
   const [selectedCategory, setSelectedCategory] = useState("All Categories")
@@ -274,4 +274,4 @@ const CustomerHeader = () => {
   )
 }
 
-export default CustomerHeader
+export default CustomerHeaderComponent

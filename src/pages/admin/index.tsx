@@ -1,17 +1,25 @@
-// pages/admin/index.tsx
-import AdminLayout from '@components/admins/AdminLayout';
-import { useEffect } from 'react';
-import { protectRoute } from '@lib/protectRoute';
+import React from "react"
+import AdminLayout from "@components/admins/AdminLayout"
+import { protectRoute } from "../../utils/protectRoute"
+import { useEffect } from "react"
+import AdminDashboard from "@components/admins/AdminDashboard"
 
-export default function AdminDashboard() {
+const AdminCategoriesManagementPage = () => {
   useEffect(() => {
-    protectRoute({ requiredRole: 'admin', redirectTo: '/forbidden-access' });
-  }, []);
+    protectRoute({ requiredRole: "admin", redirectTo: "/forbidden-access" })
+  }, [])
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold mb-4">Welcome to the Admin Dashboard</h1>
-      {/* Dashboard content here */}
+      <div>
+        <h1 className="text-2xl font-bold ">Dashbroad</h1>
+        <p className="text-xs font-semibold mb-4 text-gray-500">
+          Manage all Categories in one place
+        </p>
+        <AdminDashboard />
+      </div>
     </AdminLayout>
-  );
+  )
 }
+
+export default AdminCategoriesManagementPage

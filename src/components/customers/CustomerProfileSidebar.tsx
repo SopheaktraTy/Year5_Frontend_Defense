@@ -1,8 +1,8 @@
 import React, { useState } from "react"
-import { User, Mail, Shield } from "lucide-react"
+import { User, Mail, Shield, ShoppingCart, Package } from "lucide-react"
 import { useRouter } from "next/router"
 
-const Sidebar = () => {
+const CustomerProfileSidebar = () => {
   const router = useRouter()
   const [activeItem, setActiveItem] = useState(router.pathname) // Use actual path
   const isActive = (href: string) => activeItem === href
@@ -12,6 +12,12 @@ const Sidebar = () => {
       title: "Basic Settings",
       items: [
         { name: "Profile", icon: User, href: "/customer/profile" },
+        { name: "Cart", icon: ShoppingCart, href: "/customer/cart" },
+        {
+          name: "Order",
+          icon: Package,
+          href: "/customer/order"
+        },
         {
           name: "Change Password",
           icon: Shield,
@@ -65,4 +71,4 @@ const Sidebar = () => {
   )
 }
 
-export default Sidebar
+export default CustomerProfileSidebar

@@ -82,7 +82,7 @@ export default function AdminProductList() {
 
   useEffect(() => {
     getAllCategories()
-      .then(data => setCategories(data.slice(0, 5)))
+      .then(data => setCategories(data))
       .catch(err => console.error("Failed to fetch categories:", err))
   }, [])
 
@@ -455,17 +455,12 @@ export default function AdminProductList() {
     }
   }
 
-  const viewImage = (imageUrl: string) => {
-    setSelectedImage(imageUrl)
-    setShowImageModal(true)
-  }
-
-  const truncateDescription = (text: string, maxLength: number = 40) => {
+  const truncateDescription = (text: string, maxLength: number = 10) => {
     if (!text || text.trim() === "") return "No description"
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text
   }
 
-  const truncateProductName = (text: string, maxLength: number = 30) => {
+  const truncateProductName = (text: string, maxLength: number = 10) => {
     if (!text || text.trim() === "") return "Unnamed Product"
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text
   }
@@ -523,7 +518,7 @@ export default function AdminProductList() {
           <input
             type="text"
             placeholder="Search products..."
-            className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />

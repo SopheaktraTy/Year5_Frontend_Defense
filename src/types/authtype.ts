@@ -1,3 +1,4 @@
+// src/types/authType.ts
 export interface SignupDto {
   email: string
   password: string

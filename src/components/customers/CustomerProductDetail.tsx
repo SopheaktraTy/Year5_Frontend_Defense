@@ -22,7 +22,7 @@ interface ProductDetailPageProps {
   onAddToCart?: () => void
 }
 
-const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
+const CustomerProductDetailComponent: React.FC<ProductDetailPageProps> = ({
   onProductLoaded,
   onAddToCart
 }) => {
@@ -275,4 +275,4 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   )
 }
 
-export default ProductDetailPage
+export default CustomerProductDetailComponent

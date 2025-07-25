@@ -15,12 +15,9 @@ interface PopupProductDetailPageProps {
   onAddToCart?: () => void
 }
 
-const PopupProductDetailPage: React.FC<PopupProductDetailPageProps> = ({
-  productId,
-  onClose,
-  onProductLoaded,
-  onAddToCart
-}) => {
+const CustomerPopupProductDetailComponent: React.FC<
+  PopupProductDetailPageProps
+> = ({ productId, onClose, onProductLoaded, onAddToCart }) => {
   const [product, setProduct] = useState<ProductDto | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [quantity, setQuantity] = useState<number>(1)
@@ -262,4 +259,4 @@ const PopupProductDetailPage: React.FC<PopupProductDetailPageProps> = ({
   )
 }
 
-export default PopupProductDetailPage
+export default CustomerPopupProductDetailComponent

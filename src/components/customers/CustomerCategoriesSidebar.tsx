@@ -9,7 +9,7 @@ interface FilterProps {
   onDiscountChange: (range: "low" | "high" | null) => void
 }
 
-const CategoriesSidebar: React.FC<FilterProps> = ({
+const CustomerCategoriesSidebarComponent: React.FC<FilterProps> = ({
   categories,
   selectedCategoryId,
   onCategoryChange,
@@ -188,4 +188,4 @@ const CategoriesSidebar: React.FC<FilterProps> = ({
   )
 }
 
-export default CategoriesSidebar
+export default CustomerCategoriesSidebarComponent

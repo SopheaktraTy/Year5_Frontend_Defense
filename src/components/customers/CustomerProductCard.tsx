@@ -8,7 +8,9 @@ interface ProductCardProps {
   product: ProductInCategory
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
+  product
+}) => {
   const router = useRouter()
   const inStock = product.total_quantity > 0
   const [showPopup, setShowPopup] = useState(false) // Local modal control
@@ -128,4 +130,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   )
 }
 
-export default ProductCard
+export default CustomerProductCardComponent

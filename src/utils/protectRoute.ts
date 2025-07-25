@@ -90,6 +90,9 @@ export const protectRoute = async (options: Options = {}): Promise<void> => {
       }
 
       console.log("[protectRoute] ✅ Access granted after refresh")
+
+      // ✅ Force full page reload with new token
+      window.location.replace(window.location.href)
       return
     } catch (refreshErr) {
       console.error("[protectRoute] Token refresh failed:", refreshErr)

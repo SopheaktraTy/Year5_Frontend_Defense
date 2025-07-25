@@ -1,63 +1,65 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
-import { getAllCategories } from '../../services/categoryService';
-import { CategoryDto } from '../../types/categoryType';
+import React, { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/router"
+import { getAllCategories } from "../../services/categoryService"
+import { CategoryDto } from "../../types/categoryType"
 
 const CategoriesComponent = () => {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [categories, setCategories] = useState<CategoryDto[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Mouse wheel horizontal scroll
-useEffect(() => {
-  const el = scrollRef.current;
-  if (!el) return;
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
 
-  const handleWheel = (e: WheelEvent) => {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      e.preventDefault();
-      requestAnimationFrame(() => {
-        el.scrollTo({
-          left: el.scrollLeft + e.deltaY,
-          behavior: 'smooth',
-        });
-      });
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault()
+        requestAnimationFrame(() => {
+          el.scrollTo({
+            left: el.scrollLeft + e.deltaY,
+            behavior: "smooth"
+          })
+        })
+      }
     }
-  };
 
-  el.addEventListener('wheel', handleWheel, { passive: false });
-  return () => el.removeEventListener('wheel', handleWheel);
-}, [scrollRef.current]);
-
+    el.addEventListener("wheel", handleWheel, { passive: false })
+    return () => el.removeEventListener("wheel", handleWheel)
+  }, [scrollRef.current])
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setLoading(true);
-        const data = await getAllCategories();
-        setCategories(data);
+        setLoading(true)
+        const data = await getAllCategories()
+        setCategories(data)
       } catch (err) {
-        setError('Failed to fetch categories');
-        console.error(err);
+        setError("Failed to fetch categories")
+        console.error(err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchCategories();
-  }, []);
+    }
+    fetchCategories()
+  }, [])
 
   const handleCategoryClick = (id: string) => {
-    router.push(`/customer/category/${id}`);
-  };
+    router.push(`/customer/category/${id}`)
+  }
 
   if (loading) {
     return (
-      <div className="w-full py-8 ">
+      <div className="w-full">
         <div className="flex space-x-6 overflow-x-auto px-4 pb-2 scrollbar-hide [&::-webkit-scrollbar]:hidden">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="flex flex-col items-center flex-shrink-0 animate-pulse w-24">
+            <div
+              key={i}
+              className="flex flex-col items-center flex-shrink-0 animate-pulse w-24"
+            >
               <div className="w-20 h-20 bg-gray-200 rounded-full mb-2"></div>
               <div className="w-20 h-4 bg-gray-200 rounded"></div>
               <div className="w-16 h-3 bg-gray-200 rounded mt-1"></div>
@@ -65,25 +67,25 @@ useEffect(() => {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
-    return <div className="w-full py-8 text-center text-red-500">{error}</div>;
+    return <div className="w-full py-8 text-center text-red-500">{error}</div>
   }
 
   return (
     <div className="w-full py-6 ">
-     <div
-  ref={scrollRef}
-  className="flex items-center gap-6 overflow-x-auto scroll-smooth px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
-  style={{
-    WebkitOverflowScrolling: 'touch',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-  }}
->
-        {categories.map((category) => (
+      <div
+        ref={scrollRef}
+        className="flex items-center gap-6 overflow-x-auto scroll-smooth px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
+        style={{
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none"
+        }}
+      >
+        {categories.map(category => (
           <div
             key={category.id}
             onClick={() => handleCategoryClick(category.id)}
@@ -111,7 +113,7 @@ useEffect(() => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CategoriesComponent;
+export default CategoriesComponent

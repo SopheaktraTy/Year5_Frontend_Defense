@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { useRouter } from "next/router"
-import { protectRoute } from "@lib/protectRoute"
+import { protectRoute } from "../../../utils/protectRoute"
 import CustomerHeader from "@components/customers/CustomerHeader"
 import CustomerFooter from "@components/customers/CustomerFooter"
 import ProductDetailPage from "@components/customers/CustomerProductDetail"
 import { ChevronLeft } from "lucide-react"
 import CartPopupSidebar from "@components/customers/CustomerCartPopupSidebar" // adjust if needed
 
-const ProductAndCategoryPage = () => {
+const CustomerProductDetailPage = () => {
   const router = useRouter()
   const [pageTitle, setPageTitle] = useState<string>("My Profile")
   const [showCartSidebar, setShowCartSidebar] = useState<boolean>(false)
@@ -52,4 +52,4 @@ const ProductAndCategoryPage = () => {
 }
 
 // ✅ This must be present:
-export default ProductAndCategoryPage
+export default CustomerProductDetailPage

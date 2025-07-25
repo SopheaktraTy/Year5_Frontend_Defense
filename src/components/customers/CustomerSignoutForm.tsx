@@ -1,43 +1,47 @@
-import { useEffect, useState } from 'react';
-import { LogOut, AlertCircle, Loader2, X, User } from 'lucide-react';
-import { getProfile } from '@services/authService';
+import { useEffect, useState } from "react"
+import { LogOut, AlertCircle, Loader2, X, User } from "lucide-react"
+import { getProfile } from "@services/authService"
 
-const CustomerSignOutForm = () => {
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [error, setError] = useState('');
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [userInfo, setUserInfo] = useState<{ name?: string; email: string; image?: string | null } | null>(null);
+const CustomerSignOutFormComponent = () => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [error, setError] = useState("")
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [userInfo, setUserInfo] = useState<{
+    name?: string
+    email: string
+    image?: string | null
+  } | null>(null)
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const profile = await getProfile();
+        const profile = await getProfile()
         setUserInfo({
-          name: `${profile.firstname || ''} ${profile.lastname || ''}`.trim(),
+          name: `${profile.firstname || ""} ${profile.lastname || ""}`.trim(),
           email: profile.email,
-          image: profile.image,
-        });
+          image: profile.image
+        })
       } catch (err) {
-        console.error('Failed to fetch user profile:', err);
-        setError('Unable to load profile.');
+        console.error("Failed to fetch user profile:", err)
+        setError("Unable to load profile.")
       }
-    };
-    fetchUserInfo();
-  }, []);
+    }
+    fetchUserInfo()
+  }, [])
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
-    setError('');
+    setIsLoggingOut(true)
+    setError("")
     try {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      window.location.href = '/login';
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+      window.location.href = "/login"
     } catch (error) {
-      console.error('Logout failed:', error);
-      setError('Failed to logout. Please try again.');
-      setIsLoggingOut(false);
+      console.error("Logout failed:", error)
+      setError("Failed to logout. Please try again.")
+      setIsLoggingOut(false)
     }
-  };
+  }
 
   const ConfirmationModal = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -48,7 +52,9 @@ const CustomerSignOutForm = () => {
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
               <LogOut className="w-5 h-5 text-red-600" />
             </div>
-            <h3 className="text-xl font-semibold text-slate-800">Confirm Sign Out</h3>
+            <h3 className="text-xl font-semibold text-slate-800">
+              Confirm Sign Out
+            </h3>
           </div>
           <button
             onClick={() => setShowConfirmDialog(false)}
@@ -77,14 +83,17 @@ const CustomerSignOutForm = () => {
                 )}
               </div>
               <div>
-                <p className="font-medium text-slate-800">{userInfo.name || userInfo.email}</p>
+                <p className="font-medium text-slate-800">
+                  {userInfo.name || userInfo.email}
+                </p>
                 <p className="text-sm text-slate-500">{userInfo.email}</p>
               </div>
             </div>
           )}
 
           <p className="text-slate-600 mb-4">
-            Are you sure you want to sign out? You'll need to enter your credentials again to access your account.
+            Are you sure you want to sign out? You'll need to enter your
+            credentials again to access your account.
           </p>
 
           {error && (
@@ -124,7 +133,7 @@ const CustomerSignOutForm = () => {
         </div>
       </div>
     </div>
-  );
+  )
 
   return (
     <>
@@ -132,17 +141,21 @@ const CustomerSignOutForm = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm p-8 border border-slate-200">
             <div className="flex items-center space-x-3 mb-6">
-            
               <div>
-                <h1 className="text-xl font-medium text-slate-800">Logout Account</h1>
+                <h1 className="text-xl font-medium text-slate-800">
+                  Logout Account
+                </h1>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="p-4 bg-slate-50 rounded-lg">
-                <h3 className="font-medium text-slate-800 mb-2">Session Management</h3>
+                <h3 className="font-medium text-slate-800 mb-2">
+                  Session Management
+                </h3>
                 <p className="text-slate-600 text-sm mb-3">
-                  You can sign out of your account at any time. This will end your current session and require you to log in again.
+                  You can sign out of your account at any time. This will end
+                  your current session and require you to log in again.
                 </p>
               </div>
               <div className="flex justify-end">
@@ -161,7 +174,7 @@ const CustomerSignOutForm = () => {
 
       {showConfirmDialog && <ConfirmationModal />}
     </>
-  );
-};
+  )
+}
 
-export default CustomerSignOutForm;
+export default CustomerSignOutFormComponent

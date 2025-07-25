@@ -4,7 +4,8 @@ import API from "../utils/axios"
 import {
   CreateCartDto,
   UpdateCartItemDto,
-  CartWithDto
+  CartWithDto,
+  CartItemDto
 } from "../types/cartType" // Adjust path if needed
 
 const getToken = () => localStorage.getItem("accessToken")
@@ -16,12 +17,22 @@ const authHeader = () => ({
 })
 
 export const addToCart = async (data: CreateCartDto): Promise<any> => {
-  const response = await API.post("/Carts/add-to-cart", data, authHeader())
+  const response = await API.post("/carts/add-to-cart", data, authHeader())
   return response.data
 }
 
 export const getMyCart = async (): Promise<CartWithDto> => {
-  const response = await API.get("/Carts/view-my-cart", authHeader())
+  const response = await API.get("/carts/view-my-cart", authHeader())
+  return response.data
+}
+
+export const getCartItemById = async (
+  cartItemId: string
+): Promise<CartItemDto> => {
+  const response = await API.get(
+    `/Carts/view-a-cart-item/${cartItemId}`,
+    authHeader()
+  )
   return response.data
 }
 
@@ -30,7 +41,7 @@ export const updateCartItem = async (
   data: UpdateCartItemDto
 ): Promise<any> => {
   const response = await API.put(
-    `/Carts/update-a-item/${cartItemId}`,
+    `/carts/update-a-item/${cartItemId}`,
     data,
     authHeader()
   )
@@ -39,13 +50,13 @@ export const updateCartItem = async (
 
 export const removeCartItem = async (cartItemId: string): Promise<any> => {
   const response = await API.delete(
-    `/Carts/remove-a-item/${cartItemId}`,
+    `/carts/remove-a-item/${cartItemId}`,
     authHeader()
   )
   return response.data
 }
 
 export const clearCart = async (): Promise<any> => {
-  const response = await API.delete("/Carts/remove-all-items", authHeader())
+  const response = await API.delete("/carts/remove-all-items", authHeader())
   return response.data
 }

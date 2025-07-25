@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { changePassword } from '@services/authService';
-import { ChangePasswordDto } from '../../types/authType';
+import React, { useState } from "react"
+import { changePassword } from "@services/authService"
+import { ChangePasswordDto } from "../../types/authType"
 import {
   LoaderCircle,
   CheckCircle,
@@ -8,80 +8,85 @@ import {
   Save,
   Eye,
   EyeOff
-} from 'lucide-react';
+} from "lucide-react"
 
-const CustomerChangePasswordForm = () => {
+const CustomerChangePasswordFormComponent = () => {
   const [form, setForm] = useState<ChangePasswordDto>({
-    oldpassword: '',
-    newpassword: ''
-  });
+    oldpassword: "",
+    newpassword: ""
+  })
 
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [showPasswords, setShowPasswords] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
+  const [showPasswords, setShowPasswords] = useState(false)
 
-  const togglePasswordVisibility = () => setShowPasswords((prev) => !prev);
+  const togglePasswordVisibility = () => setShowPasswords(prev => !prev)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setMessage('')
+    e.preventDefault()
+    setError("")
+    setMessage("")
     setTimeout(() => {
-      setMessage('');
-      setError('');
-    }, 3000);
+      setMessage("")
+      setError("")
+    }, 3000)
 
     // Validation
     if (!form.oldpassword || !form.newpassword || !confirmPassword) {
-      setError('All fields are required.');
-      return;
+      setError("All fields are required.")
+      return
     }
     if (form.newpassword.length < 6) {
-      setError('New password must be at least 6 characters long.');
-      return;
+      setError("New password must be at least 6 characters long.")
+      return
     }
     if (!/\d/.test(form.newpassword) || !/[A-Za-z]/.test(form.newpassword)) {
-      setError('New password must contain at least one letter and one number.');
-      return;
+      setError("New password must contain at least one letter and one number.")
+      return
     }
     if (form.newpassword !== confirmPassword) {
-      setError('New password and confirm password do not match.');
-      return;
+      setError("New password and confirm password do not match.")
+      return
     }
 
     try {
-      setLoading(true);
-      const result = await changePassword(form);
-      setMessage(result.message || 'Password changed successfully.');
-      setForm({ oldpassword: '', newpassword: '' });
-      setConfirmPassword('');
+      setLoading(true)
+      const result = await changePassword(form)
+      setMessage(result.message || "Password changed successfully.")
+      setForm({ oldpassword: "", newpassword: "" })
+      setConfirmPassword("")
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err.message || 'Password change failed.';
-      setError(msg);
+      const msg =
+        err?.response?.data?.message || err.message || "Password change failed."
+      setError(msg)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className=" w-full bg-white p-6 rounded-lg shadow-md ">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        Change Password
+      </h2>
       {/* Seperator */}
       <div className=" border-t border-gray-200 pb-7"></div>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Old Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Old Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Old Password
+          </label>
           <div className="relative">
             <input
-              type={showPasswords ? 'text' : 'password'}
+              type={showPasswords ? "text" : "password"}
               name="oldpassword"
               value={form.oldpassword}
               onChange={handleChange}
@@ -93,16 +98,22 @@ const CustomerChangePasswordForm = () => {
               onClick={togglePasswordVisibility}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
             >
-              {showPasswords ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPasswords ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
 
         {/* New Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            New Password
+          </label>
           <input
-            type={showPasswords ? 'text' : 'password'}
+            type={showPasswords ? "text" : "password"}
             name="newpassword"
             value={form.newpassword}
             onChange={handleChange}
@@ -113,12 +124,14 @@ const CustomerChangePasswordForm = () => {
 
         {/* Confirm Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password
+          </label>
           <input
-            type={showPasswords ? 'text' : 'password'}
+            type={showPasswords ? "text" : "password"}
             name="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={e => setConfirmPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Re-enter new password"
           />
@@ -150,15 +163,17 @@ const CustomerChangePasswordForm = () => {
             disabled={loading}
             className="inline-flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {loading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>{loading ? 'Saving...' : 'Change Password'}</span>
+            {loading ? (
+              <LoaderCircle className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{loading ? "Saving..." : "Change Password"}</span>
           </button>
         </div>
-
-        
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default CustomerChangePasswordForm ;
+export default CustomerChangePasswordFormComponent

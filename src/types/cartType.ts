@@ -39,5 +39,22 @@ export interface CartWithProductDto {
 }
 
 export interface CartWithDto {
+  id: string
   cart_items: CartWithProductDto[]
+}
+
+export interface CartItemDto {
+  id: string
+  quantity: number
+  size: string
+  price_at_cart: number
+  product_variable: {
+    id: string
+    size: string
+    product: {
+      id: string
+      product_name: string
+      image: string // base64 image string
+    }
+  }
 }
