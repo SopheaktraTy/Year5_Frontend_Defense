@@ -96,7 +96,8 @@ const CustomerGeneralSettingsProfileComponent = () => {
         "is_verified",
         "created_at",
         "updated_at",
-        "role_id"
+        "role_id",
+        "status"
       ]
 
       const cleanForm: Record<string, any> = Object.fromEntries(

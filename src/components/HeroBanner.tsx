@@ -43,44 +43,50 @@ function AutoplayPlugin(interval = 4000) {
   }
 }
 
-export default function CustomerHeroBannerComponent() {
+export default function HeroBannerComponent() {
   const [banners, setBanners] = useState<HeroBannerDto[]>([])
   const [loading, setLoading] = useState(true)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
 
   const [sliderRef, slider] = useKeenSlider<HTMLDivElement>(
-    {
-      loop: true,
-      mode: "snap",
-      slides: { perView: 1 },
-      slideChanged(s) {
-        setCurrentSlide(s.track.details.rel)
-      },
-      created() {
-        setLoaded(true)
-      }
-    },
-    [AutoplayPlugin(4000)]
+    banners.length > 0
+      ? {
+          loop: true,
+          mode: "snap",
+          slides: { perView: 1 },
+          slideChanged(s) {
+            setCurrentSlide(s.track.details.rel)
+          },
+          created() {
+            setLoaded(true)
+          }
+        }
+      : undefined, // ✅ use undefined instead of null
+    [AutoplayPlugin(2800)]
   )
 
+  // ✅ Fetch banners
   useEffect(() => {
-    let isMounted = true
     const fetchBanners = async () => {
       try {
         const data = await getAllHeroBanners()
-        if (isMounted) setBanners(data)
+        setBanners(data)
       } catch (error) {
         console.error("Error loading banners:", error)
       } finally {
-        if (isMounted) setLoading(false)
+        setLoading(false)
       }
     }
     fetchBanners()
-    return () => {
-      isMounted = false
-    }
   }, [])
+
+  // ✅ Re-init slider if banner count changes
+  useEffect(() => {
+    if (slider.current) {
+      slider.current.update()
+    }
+  }, [banners.length])
 
   if (loading) {
     return (
@@ -95,10 +101,13 @@ export default function CustomerHeroBannerComponent() {
   return (
     <div className="relative w-full">
       {/* ✅ Slider */}
-      <div ref={sliderRef} className="keen-slider">
+      <div
+        key={banners.length} // 🔑 Forces React to remount if banner count changes
+        ref={sliderRef}
+        className="keen-slider"
+      >
         {banners.map(banner => (
           <div key={banner.id} className="keen-slider__slide relative w-full">
-            {/* ✅ Make each slide clickable */}
             <Link href={`/product/${banner.product?.id || ""}`}>
               <div className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] overflow-hidden cursor-pointer">
                 <img

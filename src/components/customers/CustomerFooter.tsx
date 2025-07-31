@@ -149,7 +149,7 @@ const CustomerFooterComponent = () => {
                 </button>
               </div>
               <p className="text-gray-500 text-xs">
-                Subscribe for Uminex and get 20% off your first purchase.
+                Subscribe for Monostore and get 20% off your first purchase.
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ const CustomerFooterComponent = () => {
             <div className="text-gray-600 mb-4 md:mb-0">
               Copyright ©{" "}
               <span className="text-blue-600 hover:underline cursor-pointer">
-                Uminex
+                Monostore
               </span>{" "}
               all rights reserved. Powered by{" "}
               <span className="text-blue-600 hover:underline cursor-pointer">

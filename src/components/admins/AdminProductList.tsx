@@ -24,7 +24,7 @@ import {
   Search,
   Upload,
   X,
-  Eye
+  EllipsisVertical
 } from "lucide-react"
 import Image from "next/image"
 import dayjs from "dayjs"
@@ -41,7 +41,7 @@ export default function AdminProductList() {
   const [message, setMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [isUploading, setIsUploading] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
   const [selectedImage, setSelectedImage] = useState("")
@@ -52,6 +52,11 @@ export default function AdminProductList() {
   const imageModalRef = useRef<HTMLDivElement>(null)
   const originalVariablesRef = useRef<any[]>([])
   const [allProducts, setAllProducts] = useState<any[]>([])
+  const [selectedAction, setSelectedAction] = useState<string | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  })
 
   const initialForm: UpdateProductDto = {
     productName: "",
@@ -144,6 +149,13 @@ export default function AdminProductList() {
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setSelectedAction(null)
+    document.addEventListener("click", handleClickOutside)
+    return () => document.removeEventListener("click", handleClickOutside)
   }, [])
 
   const handleCategorySelect = (categoryId: string, categoryName: string) => {
@@ -675,17 +687,50 @@ export default function AdminProductList() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => handleEdit(product)}
-                      className="text-blue-600 hover:text-blue-800 p-2"
+                      onClick={e => {
+                        e.stopPropagation() // prevent triggering row clicks
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        setDropdownPos({
+                          x: rect.right - 150,
+                          y: rect.bottom + window.scrollY + 4
+                        })
+                        setSelectedAction(product.id)
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <EllipsisVertical className="w-5 h-5 text-gray-600" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="text-red-600 hover:text-red-800 p-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {selectedAction && (
+                      <div
+                        style={{ top: dropdownPos.y, left: dropdownPos.x }}
+                        className="absolute z-50 w-40 bg-white border border-gray-200 rounded-lg "
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => {
+                            const product = products.find(
+                              p => p.id === selectedAction
+                            )
+                            if (product) handleEdit(product)
+                            setSelectedAction(null)
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+                        >
+                          <Pencil className="w-4 h-4 text-blue-600" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleDelete(selectedAction)
+                            setSelectedAction(null)
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

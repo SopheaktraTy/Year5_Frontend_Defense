@@ -29,7 +29,7 @@ export interface ProductSectionPageDto {
   id: string
   title: string
   banner_image?: string
-  products: ProductDto[] // ✅ now reuses the type above
+  products: ProductDto[]
   created_at: string
   updated_at: string
 }

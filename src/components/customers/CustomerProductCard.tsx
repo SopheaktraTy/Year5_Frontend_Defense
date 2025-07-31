@@ -65,13 +65,13 @@ const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
 
         {/* Product Info */}
         <div className="p-3">
-          <h3 className="font-medium text-base text-gray-900 mb-1 line-clamp-3 leading-6">
+          <h3 className="font-medium text-base text-start text-gray-900 mb-1 line-clamp-3 leading-6">
             {product.product_name}
           </h3>
 
           <div className="flex items-center gap-2 mb-2">
             <span
-              className={`text-base font-medium ${
+              className={`text-base font-medium  ${
                 product.original_price === product.discounted_price
                   ? "text-blue-600"
                   : "text-red-600"
@@ -81,7 +81,7 @@ const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
             </span>
 
             {product.original_price > product.discounted_price && (
-              <span className="text-sm line-through text-gray-400">
+              <span className="mt-1 text-sm line-through text-gray-400">
                 {formatPrice(product.original_price)}
               </span>
             )}

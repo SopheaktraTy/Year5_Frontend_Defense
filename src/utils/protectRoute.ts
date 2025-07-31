@@ -4,8 +4,8 @@ import { getProfile } from "../services/authService"
 import axios from "../utils/axios"
 
 interface Options {
-  requiredRole?: string // e.g. 'admin'
-  redirectTo?: string // default: '/login'
+  requiredRole?: string
+  redirectTo?: string
 }
 
 export const protectRoute = async (options: Options = {}): Promise<void> => {
@@ -16,45 +16,31 @@ export const protectRoute = async (options: Options = {}): Promise<void> => {
   const redirectTo = options.redirectTo || "/login"
 
   if (!accessToken || !refreshToken) {
-    console.warn("[protectRoute] No tokens found.")
-    redirectToPage(redirectTo)
-    return
+    return redirectToPage(redirectTo)
   }
 
   try {
     const decoded = jwtDecode<JwtPayload>(accessToken)
     const now = Date.now() / 1000
 
+    // 🔒 Token expired?
     if (decoded.exp < now) throw new Error("Access token expired")
 
-    console.log("[protectRoute] User ID from token:", decoded.sub)
-    console.log("[protectRoute] Role from token:", decoded.role)
-
+    // 🔒 Role check
     if (options.requiredRole && decoded.role !== options.requiredRole) {
-      console.warn("[protectRoute] Role mismatch.")
       alert(`Access denied. Required role: ${options.requiredRole}`)
-      redirectToPage(redirectTo)
-      return
+      return redirectToPage(redirectTo)
     }
 
+    // 🔄 Always check if user is suspended
     const user: User = await getProfile()
-    console.log("[protectRoute] User profile:", user)
-
-    if (user.status === "suspended") {
-      console.warn("[protectRoute] User is suspended.")
+    if (user.status?.toLowerCase() === "suspended") {
       alert("Your account has been suspended.")
-      redirectToPage(redirectTo)
-      return
+      clearTokens()
+      return redirectToPage(redirectTo)
     }
-
-    console.log("[protectRoute] ✅ Access granted")
-    return
-  } catch (err) {
-    console.warn(
-      "[protectRoute] Token check failed. Attempting refresh...",
-      err
-    )
-
+  } catch {
+    // ⏳ Token expired or invalid – try refresh
     try {
       const res = await axios.post("/auth/refresh-token", {
         refreshtoken: refreshToken
@@ -69,40 +55,35 @@ export const protectRoute = async (options: Options = {}): Promise<void> => {
       const decoded = jwtDecode<JwtPayload>(newAccessToken)
       if (decoded.exp < Date.now() / 1000) throw new Error("New token expired")
 
-      console.log("[protectRoute] Refreshed token for user:", decoded.sub)
-      console.log("[protectRoute] Refreshed role:", decoded.role)
-
+      // 🔒 Role check again after refresh
       if (options.requiredRole && decoded.role !== options.requiredRole) {
-        console.warn("[protectRoute] Role mismatch after refresh.")
         alert(`Access denied. Required role: ${options.requiredRole}`)
-        redirectToPage(redirectTo)
-        return
+        return redirectToPage(redirectTo)
       }
 
+      // 🔄 Check suspended again after refresh
       const user: User = await getProfile()
-      console.log("[protectRoute] User profile after refresh:", user)
-
-      if (user.status === "suspended") {
-        console.warn("[protectRoute] User is suspended after refresh.")
+      if (user.status?.toLowerCase() === "suspended") {
         alert("Your account has been suspended.")
-        redirectToPage(redirectTo)
-        return
+        clearTokens()
+        return redirectToPage(redirectTo)
       }
 
-      console.log("[protectRoute] ✅ Access granted after refresh")
-
-      // ✅ Force full page reload with new token
+      // ✅ Reload page after refresh for new token usage
       window.location.replace(window.location.href)
-      return
-    } catch (refreshErr) {
-      console.error("[protectRoute] Token refresh failed:", refreshErr)
-      localStorage.removeItem("accessToken")
-      localStorage.removeItem("refreshToken")
+    } catch {
+      // ❌ Refresh failed – clear tokens and redirect
+      clearTokens()
       redirectToPage(redirectTo)
     }
   }
 
   function redirectToPage(path: string) {
     window.location.href = path
+  }
+
+  function clearTokens() {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
   }
 }

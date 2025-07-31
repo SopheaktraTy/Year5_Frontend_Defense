@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import { getAllCategories } from "../../services/categoryService"
 import { CategoryDto } from "../../types/categoryType"
 
-const CategoriesComponent = () => {
+const CustomerCategoriesComponent = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -116,4 +116,4 @@ const CategoriesComponent = () => {
   )
 }
 
-export default CategoriesComponent
+export default CustomerCategoriesComponent

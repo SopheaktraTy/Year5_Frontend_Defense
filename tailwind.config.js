@@ -24,6 +24,7 @@ module.exports = {
   },
   plugins: [
     require("tailwind-scrollbar-hide"),
+
     plugin(function ({ addUtilities }) {
       addUtilities({
         ".translate-z-0": {

@@ -65,7 +65,7 @@ const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
 
         {/* Product Info */}
         <div className="p-3">
-          <h3 className="font-medium text-base text-gray-900 mb-1 line-clamp-3 leading-6">
+          <h3 className="font-medium text-base text-gray-900 mb-1 line-clamp-3 leading-6 text-start">
             {product.product_name}
           </h3>
 

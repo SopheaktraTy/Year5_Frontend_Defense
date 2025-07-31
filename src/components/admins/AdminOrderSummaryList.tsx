@@ -13,7 +13,7 @@ const AdminOrderSummaryList = () => {
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
 
   const totalItems = filteredOrders.length
   const totalPages = Math.ceil(totalItems / itemsPerPage)
@@ -37,14 +37,17 @@ const AdminOrderSummaryList = () => {
 
   useEffect(() => {
     const lowerSearch = search.toLowerCase()
-    const filtered = orders.filter(
-      order =>
-        `${order.user.firstname} ${order.user.lastname}`
-          .toLowerCase()
-          .includes(lowerSearch) ||
-        order.user.email.toLowerCase().includes(lowerSearch) ||
+    const filtered = orders.filter(order => {
+      const fullName = order.user
+        ? `${order.user.firstname ?? ""} ${order.user.lastname ?? ""}`
+        : ""
+      const email = order.user?.email ?? ""
+      return (
+        fullName.toLowerCase().includes(lowerSearch) ||
+        email.toLowerCase().includes(lowerSearch) ||
         order.order_no.toString().includes(lowerSearch)
-    )
+      )
+    })
     setFilteredOrders(filtered)
     setCurrentPage(1)
   }, [search, orders])
@@ -109,7 +112,7 @@ const AdminOrderSummaryList = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={order.user.image || "/placeholder.png"}
+                        src={order.user?.image || "/placeholder.png"}
                         alt="User"
                         width={40}
                         height={40}
@@ -117,16 +120,23 @@ const AdminOrderSummaryList = () => {
                       />
                       <div>
                         <div className="font-medium">
-                          {order.user.firstname} {order.user.lastname}
+                          {/* ✅ Null-safe: if no user, show "Guest" */}
+                          {order.user
+                            ? `${order.user.firstname ?? ""} ${
+                                order.user.lastname ?? ""
+                              }`
+                            : "Guest"}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {order.user.email}
+                          {/* ✅ Null-safe email fallback */}
+                          {order.user?.email ?? "No email"}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-800">
-                    {order.user.phone_number || "-"}
+                    {/* ✅ Null-safe phone fallback */}
+                    {order.user?.phone_number ?? "-"}
                   </td>
                   <td className="px-4 py-3">
                     <ul className="list-disc ml-4 space-y-1">

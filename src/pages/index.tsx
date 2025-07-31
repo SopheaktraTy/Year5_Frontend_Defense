@@ -5,20 +5,21 @@ import Footer from "@components/Footer"
 import CategoriesComponent from "@components/Categories"
 import HeroBanner from "@components/HeroBanner"
 import { useEffect } from "react"
+import ProductSectionPage from "@components/ProductSectionPage"
 
 export default function GuestHomePage() {
-  useEffect(() => {
-    const hasReloaded = sessionStorage.getItem("hasReloaded")
+  // useEffect(() => {
+  //   const hasReloaded = sessionStorage.getItem("hasReloaded")
 
-    if (!hasReloaded) {
-      sessionStorage.setItem("hasReloaded", "true")
-      setTimeout(() => {
-        window.location.reload()
-      }, 150) // 50ms delay
-    } else {
-      sessionStorage.removeItem("hasReloaded")
-    }
-  }, [])
+  //   if (!hasReloaded) {
+  //     sessionStorage.setItem("hasReloaded", "true")
+  //     setTimeout(() => {
+  //       window.location.reload()
+  //     }, 150) // 50ms delay
+  //   } else {
+  //     sessionStorage.removeItem("hasReloaded")
+  //   }
+  // }, [])
   return (
     <>
       <Head>
@@ -31,15 +32,17 @@ export default function GuestHomePage() {
       </Head>
 
       <Header />
-      <div className="flex flex-col gap-2 w-full">
-        <div className="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8text-center">
+      <div className="bg-white flex flex-col gap-2 w-full">
+        <div className="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8 text-center">
           <HeroBanner />
         </div>
         <div className="max-w-5xl mx-auto px-4  sm:px-6 lg:px-8 text-center">
           <CategoriesComponent />
         </div>
       </div>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <ProductSectionPage />
+      </div>
       <Footer />
     </>
   )

@@ -193,7 +193,11 @@ const AdminDashboard = () => {
                       {order.order_no}
                     </td>
                     <td className="p-2">
-                      {order.user.firstname} {order.user.lastname}
+                      {order.user
+                        ? `${order.user.firstname ?? ""} ${
+                            order.user.lastname ?? ""
+                          }`
+                        : "Guest"}
                     </td>
                     <td className="p-2">
                       {format(new Date(order.create_at), "PPpp")}

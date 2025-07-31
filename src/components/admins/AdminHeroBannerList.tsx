@@ -22,7 +22,8 @@ import {
   Upload,
   Search,
   CheckCircle,
-  XCircle
+  XCircle,
+  EllipsisVertical
 } from "lucide-react"
 import dayjs from "dayjs"
 
@@ -43,13 +44,20 @@ export default function AdminHeroBannerListComponent() {
   const [message, setMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [isUploading, setIsUploading] = useState(false)
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
+
+  // 🔽 Dropdown state for actions
+  const [selectedAction, setSelectedAction] = useState<string | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  })
 
   const initialForm: CreateHeroBannerDto = {
     title: "",
@@ -76,6 +84,20 @@ export default function AdminHeroBannerListComponent() {
       return () => clearTimeout(timeout)
     }
   }, [message, errorMessage])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setSelectedAction(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   const fetchBanners = async () => {
     try {
@@ -307,18 +329,20 @@ export default function AdminHeroBannerListComponent() {
                   <td className="px-4 py-3 text-xs text-gray-500">
                     {dayjs(banner.updated_at).format("MMM DD, YYYY")}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-3 text-center relative">
                     <button
-                      onClick={() => handleEdit(banner)}
-                      className="text-blue-600 hover:text-blue-800 p-2"
+                      onClick={e => {
+                        e.stopPropagation()
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        setDropdownPos({
+                          x: rect.right - 150,
+                          y: rect.bottom + window.scrollY + 4
+                        })
+                        setSelectedAction(banner.id)
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
                     >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(banner.id)}
-                      className="text-red-600 hover:text-red-800 p-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
+                      <EllipsisVertical className="w-5 h-5 text-gray-600" />
                     </button>
                   </td>
                 </tr>
@@ -333,6 +357,36 @@ export default function AdminHeroBannerListComponent() {
           </tbody>
         </table>
       </div>
+
+      {/* 🔽 Floating Dropdown */}
+      {selectedAction && (
+        <div
+          ref={dropdownRef}
+          style={{
+            position: "absolute",
+            top: dropdownPos.y,
+            left: dropdownPos.x
+          }}
+          className="absolute z-50 w-40 bg-white border border-gray-200 rounded-lg shadow-lg"
+        >
+          <button
+            onClick={() => {
+              const banner = banners.find(b => b.id === selectedAction)
+              if (banner) handleEdit(banner)
+            }}
+            className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-100 text-left text-sm text-gray-700"
+          >
+            <Pencil className="w-4 h-4 text-blue-600" /> Edit
+          </button>
+          <button
+            onClick={() => handleDelete(selectedAction)}
+            className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-100 text-left text-sm text-gray-700"
+          >
+            <Trash2 className="w-4 h-4 text-red-600" /> Delete
+          </button>
+        </div>
+      )}
+
       {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

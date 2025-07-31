@@ -49,22 +49,24 @@ export default function CustomerHeroBannerComponent() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
 
-  // ✅ Only set up keen-slider AFTER banners are loaded
   const [sliderRef, slider] = useKeenSlider<HTMLDivElement>(
-    {
-      loop: true,
-      mode: "snap",
-      slides: { perView: 1 },
-      slideChanged(s) {
-        setCurrentSlide(s.track.details.rel)
-      },
-      created() {
-        setLoaded(true)
-      }
-    },
+    banners.length > 0
+      ? {
+          loop: true,
+          mode: "snap",
+          slides: { perView: 1 },
+          slideChanged(s) {
+            setCurrentSlide(s.track.details.rel)
+          },
+          created() {
+            setLoaded(true)
+          }
+        }
+      : undefined, // ✅ use undefined instead of null
     [AutoplayPlugin(4000)]
   )
 
+  // ✅ Fetch banners
   useEffect(() => {
     const fetchBanners = async () => {
       try {
@@ -79,12 +81,12 @@ export default function CustomerHeroBannerComponent() {
     fetchBanners()
   }, [])
 
-  // ✅ 🔥 Refresh slider whenever banners update
+  // ✅ Re-init slider if banner count changes
   useEffect(() => {
     if (slider.current) {
       slider.current.update()
     }
-  }, [banners])
+  }, [banners.length])
 
   if (loading) {
     return (
@@ -99,7 +101,11 @@ export default function CustomerHeroBannerComponent() {
   return (
     <div className="relative w-full">
       {/* ✅ Slider */}
-      <div ref={sliderRef} className="keen-slider">
+      <div
+        key={banners.length} // 🔑 Forces React to remount if banner count changes
+        ref={sliderRef}
+        className="keen-slider"
+      >
         {banners.map(banner => (
           <div key={banner.id} className="keen-slider__slide relative w-full">
             <Link href={`/product/${banner.product?.id || ""}`}>

@@ -24,7 +24,8 @@ import {
   Upload,
   Search,
   CheckCircle,
-  XCircle
+  XCircle,
+  EllipsisVertical
 } from "lucide-react"
 import dayjs from "dayjs"
 
@@ -42,9 +43,16 @@ export default function AdminProductSectionPageListComponent() {
   const [message, setMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [isUploading, setIsUploading] = useState(false)
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
+
+  // dropdown state
+  const [selectedAction, setSelectedAction] = useState<string | null>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  })
 
   // product selection for section
   const [selectedProducts, setSelectedProducts] = useState<ProductDto[]>([])
@@ -82,6 +90,13 @@ export default function AdminProductSectionPageListComponent() {
       return () => clearTimeout(timeout)
     }
   }, [message, errorMessage])
+
+  useEffect(() => {
+    // ✅ close dropdown when clicking outside
+    const handleClickOutside = () => setSelectedAction(null)
+    document.addEventListener("click", handleClickOutside)
+    return () => document.removeEventListener("click", handleClickOutside)
+  }, [])
 
   const fetchSectionPages = async () => {
     try {
@@ -360,17 +375,49 @@ export default function AdminProductSectionPageListComponent() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => handleEdit(section)}
-                      className="text-blue-600 hover:text-blue-800 p-2"
+                      onClick={e => {
+                        e.stopPropagation()
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        setDropdownPos({
+                          x: rect.right - 150,
+                          y: rect.bottom + window.scrollY + 4
+                        })
+                        setSelectedAction(section.id)
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <EllipsisVertical className="w-5 h-5 text-gray-600" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(section.id)}
-                      className="text-red-600 hover:text-red-800 p-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    {/* ✅ Dropdown Menu */}
+                    {selectedAction === section.id && (
+                      <div
+                        style={{ top: dropdownPos.y, left: dropdownPos.x }}
+                        className="absolute z-50 w-40 bg-white border border-gray-200 rounded-lg shadow-lg"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => {
+                            handleEdit(section)
+                            setSelectedAction(null)
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+                        >
+                          <Pencil className="w-4 h-4 text-blue-600" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleDelete(section.id)
+                            setSelectedAction(null)
+                          }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

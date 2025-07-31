@@ -29,3 +29,5 @@ npm i date-fns
 npm i recharts
 
 npm install keen-slider
+
+npm i tailwind-scrollbar-hide

@@ -1,238 +1,248 @@
-'use client';
+"use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react"
 import {
   getAllCategories,
   createCategory,
   updateCategory,
-  deleteCategory,
-} from '../../services/categoryService';
-import { CreateCategoryDto, UpdateCategoryDto } from '../../types/categoryType';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Search, Upload, X, Eye } from 'lucide-react';
-import Image from 'next/image';
-import dayjs from 'dayjs';
+  deleteCategory
+} from "../../services/categoryService"
+import { CreateCategoryDto, UpdateCategoryDto } from "../../types/categoryType"
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Search,
+  Upload,
+  X,
+  Eye,
+  EllipsisVertical
+} from "lucide-react"
+import Image from "next/image"
+import dayjs from "dayjs"
+import ReactDOM from "react-dom"
 
 const initialForm: CreateCategoryDto = {
-  categoryName: '',
-  description: '',
-  image: '',
-};
+  categoryName: "",
+  description: "",
+  image: ""
+}
 
 export default function CategoriesList() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [search, setSearch] = useState('');
-  const [form, setForm] = useState<CreateCategoryDto>(initialForm);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [imagePreview, setImagePreview] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [showImageModal, setShowImageModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState('');
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const imageModalRef = useRef<HTMLDivElement>(null);
+  const [categories, setCategories] = useState<any[]>([])
+  const [search, setSearch] = useState("")
+  const [form, setForm] = useState<CreateCategoryDto>(initialForm)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [message, setMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [imagePreview, setImagePreview] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [selectedImage, setSelectedImage] = useState("")
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const imageModalRef = useRef<HTMLDivElement>(null)
 
+  // 🔥 Dropdown states
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 })
+
+  // Pagination & Filtering
   const totalItems = categories.filter(cat =>
     cat.category_name?.toLowerCase().includes(search.toLowerCase())
-  ).length;
-
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  ).length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
   const filtered = categories.filter(cat =>
     cat.category_name?.toLowerCase().includes(search.toLowerCase())
-  );
-
+  )
   const paginatedCategories = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  );
-
-
+  )
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
     if (message || errorMessage) {
       const timeout = setTimeout(() => {
-        setMessage('');
-        setErrorMessage('');
-      }, 4000);
-      return () => clearTimeout(timeout);
+        setMessage("")
+        setErrorMessage("")
+      }, 4000)
+      return () => clearTimeout(timeout)
     }
-  }, [message, errorMessage]);
+  }, [message, errorMessage])
 
+  // ✅ Close dropdown when clicking anywhere outside
   useEffect(() => {
-  const handleOutsideClick = (e: MouseEvent) => {
-    if (imageModalRef.current && !imageModalRef.current.contains(e.target as Node)) {
-      setShowImageModal(false);
+    const handleClickOutside = () => setOpenDropdown(null)
+    document.addEventListener("click", handleClickOutside)
+    return () => document.removeEventListener("click", handleClickOutside)
+  }, [])
+
+  // ✅ Close image modal on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        imageModalRef.current &&
+        !imageModalRef.current.contains(e.target as Node)
+      ) {
+        setShowImageModal(false)
+      }
     }
-  };
-
-  if (showImageModal) {
-    document.addEventListener('mousedown', handleOutsideClick);
-  }
-
-  return () => {
-    document.removeEventListener('mousedown', handleOutsideClick);
-  };
-}, [showImageModal]);
-
+    if (showImageModal) {
+      document.addEventListener("mousedown", handleOutsideClick)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+  }, [showImageModal])
 
   const fetchCategories = async () => {
     try {
-      const data = await getAllCategories();
-      setCategories(data);
+      const data = await getAllCategories()
+      setCategories(data)
     } catch (err) {
-      console.error('Error fetching categories:', err);
-      setErrorMessage('Failed to load categories.');
+      console.error("Error fetching categories:", err)
+      setErrorMessage("Failed to load categories.")
     }
-  };
+  }
 
+  // 🔹 Form Handling
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // Check if file is an image
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file")
+      return
     }
-    
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be under 5MB.');
-      return;
+      alert("Image size must be under 5MB.")
+      return
     }
-    
-    setIsUploading(true);
-    const reader = new FileReader();
+
+    setIsUploading(true)
+    const reader = new FileReader()
     reader.onloadend = () => {
-      const base64 = reader.result as string;
-      setForm(prev => ({ ...prev, image: base64 }));
-      setImagePreview(base64);
-      setIsUploading(false);
-    };
+      const base64 = reader.result as string
+      setForm(prev => ({ ...prev, image: base64 }))
+      setImagePreview(base64)
+      setIsUploading(false)
+    }
     reader.onerror = () => {
-      alert('Error reading file');
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
-  };
-
-
+      alert("Error reading file")
+      setIsUploading(false)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleSubmit = async () => {
     if (!form.categoryName.trim()) {
-      alert('Category name is required');
-      return;
+      alert("Category name is required")
+      return
     }
 
     try {
       const cleanedImage =
-        form.image && (form.image.startsWith('http') || form.image.startsWith('data:'))
+        form.image &&
+        (form.image.startsWith("http") || form.image.startsWith("data:"))
           ? form.image
-          : '';
+          : ""
 
-      const payload = { ...form, image: cleanedImage };
+      const payload = { ...form, image: cleanedImage }
 
       if (editingId) {
-        await updateCategory(editingId, payload as UpdateCategoryDto);
-        setMessage('Category updated successfully.');
+        await updateCategory(editingId, payload as UpdateCategoryDto)
+        setMessage("Category updated successfully.")
       } else {
-        await createCategory(payload);
-        setMessage('Category created successfully.');
+        await createCategory(payload)
+        setMessage("Category created successfully.")
       }
 
-      resetModal();
-      fetchCategories();
+      resetModal()
+      fetchCategories()
     } catch (err) {
-      console.error('Error saving category:', err);
-      setErrorMessage('Failed to save category.');
+      console.error("Error saving category:", err)
+      setErrorMessage("Failed to save category.")
     }
-  };
+  }
 
   const resetModal = () => {
-    setForm(initialForm);
-    setEditingId(null);
-    setIsModalOpen(false);
-    setImagePreview('');
-    setIsUploading(false);
-    // Clear file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
+    setForm(initialForm)
+    setEditingId(null)
+    setIsModalOpen(false)
+    setImagePreview("")
+    setIsUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
+  // 🔹 Actions
   const handleEdit = (category: any) => {
     setForm({
       categoryName: category.category_name,
       description: category.description,
-      image: category.image || '',
-    });
-    
-    // Set image preview for editing
-    const imageUrl = category.image;
-    if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
-      setImagePreview(imageUrl);
+      image: category.image || ""
+    })
+    if (
+      category.image &&
+      (category.image.startsWith("http") || category.image.startsWith("data:"))
+    ) {
+      setImagePreview(category.image)
     } else {
-      setImagePreview('');
+      setImagePreview("")
     }
-    
-    setEditingId(category.id);
-    setIsModalOpen(true);
-  };
+    setEditingId(category.id)
+    setIsModalOpen(true)
+  }
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category?')) {
+    if (confirm("Are you sure you want to delete this category?")) {
       try {
-        await deleteCategory(id);
-        setMessage('Category deleted successfully.');
-        fetchCategories();
+        await deleteCategory(id)
+        setMessage("Category deleted successfully.")
+        fetchCategories()
       } catch (err) {
-        console.error('Delete failed:', err);
-        setErrorMessage('Failed to delete category.');
+        console.error("Delete failed:", err)
+        setErrorMessage("Failed to delete category.")
       }
     }
-  };
+  }
 
   const removeImage = () => {
-    setForm(prev => ({ ...prev, image: '' }));
-    setImagePreview('');
-    // Clear file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
+    setForm(prev => ({ ...prev, image: "" }))
+    setImagePreview("")
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   const viewImage = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setShowImageModal(true);
-  };
+    setSelectedImage(imageUrl)
+    setShowImageModal(true)
+  }
 
-  const truncateText = (text: string, maxLength: number = 50) => {
-    if (!text) return '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
+  const truncateText = (text: string, maxLength: number = 50) =>
+    text && text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text
 
-  const hasValidImage = (imageUrl: string) => {
-    return imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'));
-  };
+  const hasValidImage = (imageUrl: string) =>
+    imageUrl && (imageUrl.startsWith("http") || imageUrl.startsWith("data:"))
 
   return (
     <div className="space-y-4 bg-white p-6 rounded-lg shadow-md">
+      {/* 🔍 Search + ➕ Create */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
@@ -241,10 +251,9 @@ export default function CategoriesList() {
             placeholder="Search categories..."
             className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
-
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition-colors"
@@ -254,6 +263,7 @@ export default function CategoriesList() {
         </button>
       </div>
 
+      {/* ✅ Messages */}
       {message && (
         <div className="rounded-md bg-green-50 p-4 border border-green-200">
           <div className="flex items-start">
@@ -262,7 +272,6 @@ export default function CategoriesList() {
           </div>
         </div>
       )}
-      
       {errorMessage && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <div className="flex items-start">
@@ -272,6 +281,7 @@ export default function CategoriesList() {
         </div>
       )}
 
+      {/* 📋 Table */}
       <div className="overflow-x-auto border rounded-lg">
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 text-gray-700">
@@ -287,62 +297,95 @@ export default function CategoriesList() {
           <tbody>
             {paginatedCategories.length > 0 ? (
               paginatedCategories.map(category => (
-                <tr key={category.id} className="border-b hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">
-                      {category.category_name}
-                    </div>
-                  </td>
+                <tr
+                  key={category.id}
+                  className="border-b hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-4 py-3">{category.category_name}</td>
                   <td className="px-4 py-3">
                     <div className="relative w-[50px] h-[50px]">
-                        <Image
-                          src={hasValidImage(category.image) ? category.image : '/placeholder.jpg'}
-                          alt={category.category_name || 'Category'}
-                          fill
-                          className="rounded-lg object-cover border border-gray-200"
-                        />
-                        {hasValidImage(category.image) && (
-                          <button
-                            onClick={() => viewImage(category.image)}
-                            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white rounded-lg opacity-0 hover:opacity-100 transition-opacity"
-                            title="View full image"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
+                      <Image
+                        src={
+                          hasValidImage(category.image)
+                            ? category.image
+                            : "/placeholder.jpg"
+                        }
+                        alt={category.category_name || "Category"}
+                        fill
+                        className="rounded-lg object-cover border border-gray-200"
+                      />
+                      {hasValidImage(category.image) && (
+                        <button
+                          onClick={() => viewImage(category.image)}
+                          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white rounded-lg opacity-0 hover:opacity-100 transition-opacity"
+                          title="View full image"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div 
-                      className="text-gray-700 max-w-xs"
-                      title={category.description || 'No description'}
+                    {truncateText(category.description)}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500">
+                    {dayjs(category.created_at).format("MMM DD, YYYY")}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500">
+                    {dayjs(category.updated_at).format("MMM DD, YYYY")}
+                  </td>
+
+                  {/* 🔽 Actions with EllipsisVertical */}
+                  <td className="px-4 py-3 text-center relative">
+                    <button
+                      onClick={e => {
+                        e.stopPropagation()
+                        const rect = (
+                          e.currentTarget as HTMLElement
+                        ).getBoundingClientRect()
+                        setDropdownPosition({ x: rect.left, y: rect.bottom })
+                        setOpenDropdown(
+                          openDropdown === category.id ? null : category.id
+                        )
+                      }}
+                      className="p-2 rounded-full hover:bg-gray-100 focus:outline-none"
                     >
-                      {truncateText(category.description)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {dayjs(category.created_at).format('MMM DD, YYYY')}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {dayjs(category.updated_at).format('MMM DD, YYYY')}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center items-center gap-2">
-                      <button
-                        onClick={() => handleEdit(category)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors p-1 rounded hover:bg-blue-50"
-                        title="Edit Category"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors p-1 rounded hover:bg-red-50"
-                        title="Delete Category"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                      <EllipsisVertical className="w-5 h-5 text-gray-600" />
+                    </button>
+
+                    {/* ✅ Dropdown rendered via Portal */}
+                    {openDropdown === category.id &&
+                      ReactDOM.createPortal(
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: `${dropdownPosition.y}px`,
+                            left: `${dropdownPosition.x - 130}px`,
+                            zIndex: 9999
+                          }}
+                          className="w-40 bg-white border border-gray-200 rounded-lg shadow-lg"
+                        >
+                          <button
+                            onClick={() => {
+                              handleEdit(category)
+                              setOpenDropdown(null)
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <Pencil className="w-4 h-4 mr-2" /> Edit Category
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDelete(category.id)
+                              setOpenDropdown(null)
+                            }}
+                            className="w-full flex items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" /> Delete Category
+                          </button>
+                        </div>,
+                        document.body
+                      )}
                   </td>
                 </tr>
               ))
@@ -352,9 +395,6 @@ export default function CategoriesList() {
                   <div className="flex flex-col items-center gap-2">
                     <Search className="w-8 h-8 text-gray-300" />
                     <p>No categories found.</p>
-                    {search && (
-                      <p className="text-sm">Try adjusting your search terms.</p>
-                    )}
                   </div>
                 </td>
               </tr>
@@ -362,7 +402,6 @@ export default function CategoriesList() {
           </tbody>
         </table>
       </div>
-
       {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -370,7 +409,7 @@ export default function CategoriesList() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {editingId ? 'Edit Category' : 'Create Category'}
+                  {editingId ? "Edit Category" : "Create Category"}
                 </h2>
                 <button
                   onClick={resetModal}
@@ -409,22 +448,23 @@ export default function CategoriesList() {
                     rows={5}
                     className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition transition-colors resize-vertical"
                   />
-                   <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 mt-1">
                     Current length: {form.description?.length || 0} characters
                   </p>
                 </div>
-               
 
                 {/* Image Upload Section */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category Image
                   </label>
-                  
+
                   {/* Image Preview */}
                   {imagePreview && (
                     <div className="mb-4">
-                      <p className="text-sm font-medium text-gray-600 mb-2">Preview</p>
+                      <p className="text-sm font-medium text-gray-600 mb-2">
+                        Preview
+                      </p>
                       <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-300 group">
                         <img
                           src={imagePreview}
@@ -460,7 +500,7 @@ export default function CategoriesList() {
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Upload size={20} />
-                        {isUploading ? 'Uploading...' : 'Upload Image'}
+                        {isUploading ? "Uploading..." : "Upload Image"}
                       </button>
                     </div>
                   </div>
@@ -483,7 +523,7 @@ export default function CategoriesList() {
                     onClick={handleSubmit}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
-                    {editingId ? 'Update Category' : 'Create Category'}
+                    {editingId ? "Update Category" : "Create Category"}
                   </button>
                 </div>
               </div>
@@ -514,7 +554,6 @@ export default function CategoriesList() {
         </div>
       )}
 
-
       {/* Pagination */}
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
         {/* Items per page */}
@@ -525,13 +564,13 @@ export default function CategoriesList() {
           <select
             id="itemsPerPage"
             value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
+            onChange={e => {
+              setItemsPerPage(Number(e.target.value))
+              setCurrentPage(1)
             }}
             className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
           >
-            {[5, 8, 10, 20].map((num) => (
+            {[5, 8, 10, 20].map(num => (
               <option key={num} value={num}>
                 {num}
               </option>
@@ -549,7 +588,7 @@ export default function CategoriesList() {
 
           <button
             aria-label="Previous Page"
-            onClick={() => setCurrentPage((p) => p - 1)}
+            onClick={() => setCurrentPage(p => p - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"
           >
@@ -557,26 +596,27 @@ export default function CategoriesList() {
           </button>
 
           {Array.from({ length: Math.min(5, totalPages) }, (_, index) => {
-            const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + index;
+            const pageNum =
+              Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + index
             return (
               <button
                 key={pageNum}
                 aria-label={`Page ${pageNum}`}
                 onClick={() => setCurrentPage(pageNum)}
                 className={`px-3 py-1 rounded border ${
-                  currentPage === pageNum 
-                    ? 'bg-blue-600 text-white border-blue-600' 
-                    : 'border-gray-300 hover:bg-gray-100'
+                  currentPage === pageNum
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 hover:bg-gray-100"
                 } transition-colors`}
               >
                 {pageNum}
               </button>
-            );
+            )
           })}
 
           <button
             aria-label="Next Page"
-            onClick={() => setCurrentPage((p) => p + 1)}
+            onClick={() => setCurrentPage(p => p + 1)}
             disabled={currentPage === totalPages}
             className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"
           >
@@ -585,7 +625,5 @@ export default function CategoriesList() {
         </div>
       </div>
     </div>
-  );
+  )
 }
-
-
