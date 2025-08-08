@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { getAllOrders } from "../../services/orderService"
+import { getAllOrders, toggleOrderStatus } from "../../services/orderService"
 import { Order } from "../../types/orderType"
 import { Search } from "lucide-react"
 import Image from "next/image"
@@ -11,13 +11,16 @@ const AdminOrderSummaryList = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [search, setSearch] = useState("")
+  const [filterType, setFilterType] = useState("all") // ✅ NEW filter state
   const [loading, setLoading] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
 
   const totalItems = filteredOrders.length
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
+  // ✅ Fetch all orders
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -35,9 +38,15 @@ const AdminOrderSummaryList = () => {
     fetchOrders()
   }, [])
 
+  // ✅ Search filtering
   useEffect(() => {
+    applyFilters()
+  }, [search, filterType, orders])
+
+  // ✅ Central filter logic
+  const applyFilters = () => {
     const lowerSearch = search.toLowerCase()
-    const filtered = orders.filter(order => {
+    let filtered = orders.filter(order => {
       const fullName = order.user
         ? `${order.user.firstname ?? ""} ${order.user.lastname ?? ""}`
         : ""
@@ -48,9 +57,17 @@ const AdminOrderSummaryList = () => {
         order.order_no.toString().includes(lowerSearch)
       )
     })
+
+    // ✅ Filter by status
+    if (filterType === "approved") {
+      filtered = filtered.filter(order => order.status === "approved")
+    } else if (filterType === "not_yet_approved") {
+      filtered = filtered.filter(order => order.status === "not_yet_approved")
+    }
+
     setFilteredOrders(filtered)
     setCurrentPage(1)
-  }, [search, orders])
+  }
 
   const paginatedOrders = filteredOrders.slice(
     (currentPage - 1) * itemsPerPage,
@@ -68,9 +85,36 @@ const AdminOrderSummaryList = () => {
       : trimmed
   }
 
+  // ✅ Toggle handler with alert
+  const handleToggleStatus = async (orderId: string, currentStatus: string) => {
+    // Show confirmation alert based on current status
+    const confirmMessage =
+      currentStatus === "not_yet_approved"
+        ? "Are you sure you want to approve this order?"
+        : "Are you sure you want to mark this order as NOT approved?"
+
+    if (!window.confirm(confirmMessage)) {
+      return // 🚫 Stop if user clicks "Cancel"
+    }
+
+    try {
+      setTogglingId(orderId)
+      await toggleOrderStatus(orderId)
+      const updatedOrders = await getAllOrders()
+      setOrders(updatedOrders)
+      setFilteredOrders(updatedOrders)
+    } catch (error) {
+      console.error("Failed to toggle status:", error)
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm w-full">
+      {/* ✅ Search + Filter Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* 🔍 Search box */}
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
           <input
@@ -81,8 +125,20 @@ const AdminOrderSummaryList = () => {
             className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
+
+        {/* ✅ Filter dropdown */}
+        <select
+          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+        >
+          <option value="all">All Orders</option>
+          <option value="approved">Approved Orders</option>
+          <option value="not_yet_approved">Not Yet Approved Orders</option>
+        </select>
       </div>
 
+      {/* ✅ Table */}
       {loading ? (
         <p>Loading...</p>
       ) : paginatedOrders.length === 0 ? (
@@ -98,6 +154,7 @@ const AdminOrderSummaryList = () => {
                 <th className="px-4 py-3 font-medium">Products</th>
                 <th className="px-4 py-3 font-medium">Total</th>
                 <th className="px-4 py-3 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -120,7 +177,6 @@ const AdminOrderSummaryList = () => {
                       />
                       <div>
                         <div className="font-medium">
-                          {/* ✅ Null-safe: if no user, show "Guest" */}
                           {order.user
                             ? `${order.user.firstname ?? ""} ${
                                 order.user.lastname ?? ""
@@ -128,14 +184,12 @@ const AdminOrderSummaryList = () => {
                             : "Guest"}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {/* ✅ Null-safe email fallback */}
                           {order.user?.email ?? "No email"}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-800">
-                    {/* ✅ Null-safe phone fallback */}
                     {order.user?.phone_number ?? "-"}
                   </td>
                   <td className="px-4 py-3">
@@ -154,6 +208,24 @@ const AdminOrderSummaryList = () => {
                   <td className="px-4 py-3 text-xs text-gray-500">
                     {dayjs(order.create_at).format("MMM DD, YYYY")}
                   </td>
+                  {/* ✅ Status Toggle */}
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleToggleStatus(order.id, order.status)}
+                      disabled={togglingId === order.id}
+                      className={`px-3 py-1 rounded border font-medium text-xs transition-colors ${
+                        order.status === "not_yet_approved"
+                          ? "border-red-400 text-red-600 bg-red-50 hover:bg-red-100"
+                          : "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
+                      }`}
+                    >
+                      {togglingId === order.id
+                        ? "Updating..."
+                        : order.status === "not_yet_approved"
+                        ? "❌ Not Yet Approved"
+                        : "✅ Approved"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -161,7 +233,7 @@ const AdminOrderSummaryList = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
+      {/* ✅ Pagination Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700 mt-4">
         {/* Items Per Page */}
         <div className="flex items-center gap-2">
@@ -187,13 +259,14 @@ const AdminOrderSummaryList = () => {
         </div>
 
         {/* Page Buttons */}
-        <div className="flex items-center gap-2 mt-4 sm:mt-0">
+        <div className="flex items-center gap-4 mt-4 sm:mt-0">
           <span className="text-xs text-gray-500">
-            {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}–
+            {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}-
             {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
           </span>
 
           <button
+            aria-label="Previous Page"
             onClick={() => setCurrentPage(p => p - 1)}
             disabled={currentPage === 1}
             className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"
@@ -201,25 +274,12 @@ const AdminOrderSummaryList = () => {
             ←
           </button>
 
-          {Array.from({ length: Math.min(5, totalPages) }, (_, index) => {
-            const pageNum =
-              Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + index
-            return (
-              <button
-                key={pageNum}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1 rounded border ${
-                  currentPage === pageNum
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-gray-300 hover:bg-gray-100"
-                } transition-colors`}
-              >
-                {pageNum}
-              </button>
-            )
-          })}
+          <span className="text-xs font-normal px-3 py-2 text-gray-800 border-gray-300 bg-white rounded border">
+            {currentPage} / {totalPages}
+          </span>
 
           <button
+            aria-label="Next Page"
             onClick={() => setCurrentPage(p => p + 1)}
             disabled={currentPage === totalPages}
             className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"

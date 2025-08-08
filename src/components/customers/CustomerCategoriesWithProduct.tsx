@@ -22,6 +22,10 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
     null
   )
 
+  // ✅ Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(8) // default 8
+
   useEffect(() => {
     if (categoryId && typeof categoryId === "string") {
       fetchCategoryData(categoryId)
@@ -55,18 +59,22 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
 
   const handleCategoryChange = (id: string) => {
     router.push(`/customer/category/${id}`)
+    setCurrentPage(1) // reset page when switching category
   }
 
   const handlePriceChange = (min: number, max: number) => {
     setPriceRange([min, max])
+    setCurrentPage(1)
   }
 
   const handleAvailabilityChange = (status: "in" | "out" | null) => {
     setAvailability(status)
+    setCurrentPage(1)
   }
 
   const handleDiscountChange = (range: "low" | "high" | null) => {
     setDiscountRange(range)
+    setCurrentPage(1)
   }
 
   const getDiscountedPrice = (p: CategoryWithProductsDto["products"][0]) =>
@@ -110,7 +118,13 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
       })
   }, [category, sortBy, priceRange, availability, discountRange])
 
-  // Return loading early — this is now safe
+  // ✅ Pagination calculations
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage)
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
   if (loading) return <div className="text-center py-20">Loading...</div>
   if (!category)
     return <div className="text-center py-20">Category not found.</div>
@@ -124,7 +138,7 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
         </p>
       </div>
 
-      <div className="container mx-auto  py-8 flex gap-6">
+      <div className="container mx-auto py-8 flex gap-6">
         <CategoriesSidebar
           categories={allCategories.map(cat => ({
             id: cat.id,
@@ -138,7 +152,7 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
         />
 
         <div className="flex-1">
-          <div className="flex justify-between items-center mb-6 rounded-lg bg-white p-4 ">
+          <div className="flex justify-between items-center mb-6 rounded-lg bg-white p-4">
             <div className="flex flex-col gap-0">
               <h1 className="text-3xl font-bold mb-2">
                 {category.category_name}
@@ -160,15 +174,72 @@ const CustomerCategoriesWithProductComponent: React.FC = () => {
             </select>
           </div>
 
+          {/* ✅ Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {sortedProducts.map(product => (
+            {paginatedProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
 
-          {sortedProducts.length === 0 && (
+          {paginatedProducts.length === 0 && (
             <div className="text-center text-gray-500 py-16">
               No products found in this category.
+            </div>
+          )}
+
+          {/* ✅ Pagination */}
+          {sortedProducts.length > 0 && (
+            <div className="flex justify-between items-center mt-8 bg-white p-4 rounded-md">
+              {/* Items per page selector */}
+              <div className="flex items-center gap-2 text-sm">
+                <span>Show:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={e => {
+                    setItemsPerPage(Number(e.target.value))
+                    setCurrentPage(1)
+                  }}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value={8}>8</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+                <span>items</span>
+              </div>
+
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 border rounded text-sm hover:bg-gray-100 disabled:opacity-50"
+                  onClick={() => setCurrentPage(p => p - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    className={`px-3 py-1 border rounded text-sm ${
+                      currentPage === i + 1
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  className="px-3 py-1 border rounded text-sm hover:bg-gray-100 disabled:opacity-50"
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>

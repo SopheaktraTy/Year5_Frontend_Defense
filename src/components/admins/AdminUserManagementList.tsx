@@ -413,16 +413,21 @@ const UserManagementList: React.FC = () => {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 text-sm text-gray-600">
+          {/* Pagination */}
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
+            {/* Items per page */}
             <div className="flex items-center gap-2">
-              <span>Show</span>
+              <label htmlFor="itemsPerPage" className="whitespace-nowrap">
+                Show
+              </label>
               <select
+                id="itemsPerPage"
                 value={itemsPerPage}
                 onChange={e => {
                   setItemsPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className="border rounded px-2 py-1"
+                className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 {[5, 8, 10, 20].map(num => (
                   <option key={num} value={num}>
@@ -430,40 +435,36 @@ const UserManagementList: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <span>per page</span>
+              <span className="whitespace-nowrap">per page</span>
             </div>
 
-            <div className="flex items-center gap-1 mt-3 sm:mt-0">
-              <span className="mr-2">
-                {(currentPage - 1) * itemsPerPage + 1}-
+            {/* Pagination controls */}
+            <div className="flex items-center gap-4 mt-4 sm:mt-0">
+              <span className="text-xs text-gray-500">
+                {totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}-
                 {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
                 {totalItems}
               </span>
 
               <button
-                className="px-2 py-1 disabled:text-gray-400"
-                disabled={currentPage === 1}
+                aria-label="Previous Page"
                 onClick={() => setCurrentPage(p => p - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"
               >
                 ←
               </button>
 
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`px-2 py-1 rounded ${
-                    currentPage === index + 1 ? "bg-gray-200 font-semibold" : ""
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
+              {/* ✅ Just show page number instead of page buttons */}
+              <span className="text-xs font-normal px-3 py-2 text-gray-800 border-gray-300 bg-white rounded border">
+                {currentPage} / {totalPages}
+              </span>
 
               <button
-                className="px-2 py-1 disabled:text-gray-400"
-                disabled={currentPage === totalPages}
+                aria-label="Next Page"
                 onClick={() => setCurrentPage(p => p + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded border border-gray-300 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-100 transition-colors"
               >
                 →
               </button>

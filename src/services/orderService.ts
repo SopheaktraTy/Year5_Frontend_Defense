@@ -33,3 +33,12 @@ export const getOrderById = async (orderId: string): Promise<Order> => {
   )
   return response.data
 }
+
+export const toggleOrderStatus = async (orderId: string): Promise<Order> => {
+  const response = await API.put(
+    `/orders/toggle-status/${orderId}`,
+    {},
+    authHeader()
+  )
+  return response.data
+}

@@ -17,7 +17,6 @@ export default function VerifyOtpForm() {
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-
   useEffect(() => {
     const storedEmail = localStorage.getItem("pendingEmail")
     if (storedEmail) {
@@ -27,7 +26,7 @@ export default function VerifyOtpForm() {
     }
 
     const interval = setInterval(() => {
-      setTimer((prev) => (prev > 0 ? prev - 1 : 0))
+      setTimer(prev => (prev > 0 ? prev - 1 : 0))
     }, 1000)
 
     return () => clearInterval(interval)
@@ -111,20 +110,23 @@ export default function VerifyOtpForm() {
   }
 
   const maskedEmail = email
-    ? email.replace(/(.{2})(.*)(?=@)/, (_, a, b) => `${a}${"*".repeat(b.length)}`)
+    ? email.replace(
+        /(.{2})(.*)(?=@)/,
+        (_, a, b) => `${a}${"*".repeat(b.length)}`
+      )
     : ""
 
   return (
     <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
       <div className="text-center mb-6">
-         <button
-            onClick={() => router.back()}
-            className=" top-4 left-4 flex items-center text-gray-600 hover:text-blue-600 focus:outline-none"
-          >
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            <span className="text-sm font-medium">Back</span>
-         </button>
-  
+        <button
+          onClick={() => router.back()}
+          className=" top-4 left-4 flex items-center text-gray-600 hover:text-blue-600 focus:outline-none"
+        >
+          <ChevronLeft className="h-5 w-5 mr-1" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
         <img
           src="/logo/Logo No Text.svg"
           alt="Logo"
@@ -136,11 +138,33 @@ export default function VerifyOtpForm() {
         <p className="text-sm text-gray-500">
           We sent it to <strong>{maskedEmail}</strong>
         </p>
-    
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex justify-center gap-2">
+        <div
+          className="flex justify-center gap-2"
+          onPaste={e => {
+            e.preventDefault()
+            const pasteData = e.clipboardData.getData("text").trim()
+
+            // ✅ Only digits allowed
+            if (/^\d+$/.test(pasteData)) {
+              // ✅ Split and keep max 6 digits
+              const otpArray = pasteData.split("").slice(0, 6)
+
+              setOtp(
+                otpArray.concat(Array(6 - otpArray.length).fill("")).slice(0, 6)
+              )
+
+              // ✅ Move focus to the last filled box
+              if (otpArray.length === 6) {
+                inputRefs.current[5]?.focus()
+              } else {
+                inputRefs.current[otpArray.length]?.focus()
+              }
+            }
+          }}
+        >
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -154,7 +178,7 @@ export default function VerifyOtpForm() {
               ref={el => {
                 inputRefs.current[index] = el
               }}
-              className="w-12 h-12 text-center border border-gray-300 rounded text-lg border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-12 h-12 text-center border border-gray-300 rounded text-lg  focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           ))}
         </div>

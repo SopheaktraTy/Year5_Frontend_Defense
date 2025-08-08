@@ -30,5 +30,6 @@ export interface Order {
   order_no: number
   total_amount: string
   create_at: string
+  status: "not_yet_approved" | "approved"
   order_items: OrderItem[]
 }

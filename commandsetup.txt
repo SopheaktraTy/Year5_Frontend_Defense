@@ -31,3 +31,5 @@ npm i recharts
 npm install keen-slider
 
 npm i tailwind-scrollbar-hide
+
+npm install socket.io-client
