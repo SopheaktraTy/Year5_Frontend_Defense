@@ -12,7 +12,7 @@ const AdminProductSectionPagePage = () => {
   return (
     <AdminLayout>
       <div>
-        <h1 className="text-2xl font-bold ">Hero Banners Management</h1>
+        <h1 className="text-2xl font-bold ">Page Section Management</h1>
         <p className="text-xs font-semibold mb-4 text-gray-500">
           Manage all Hero Banners in one place
         </p>

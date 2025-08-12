@@ -52,6 +52,7 @@ export default function AdminProductList() {
   const imageModalRef = useRef<HTMLDivElement>(null)
   const originalVariablesRef = useRef<any[]>([])
   const [allProducts, setAllProducts] = useState<any[]>([])
+  const [sortFilter, setSortFilter] = useState<string>("")
   const [selectedAction, setSelectedAction] = useState<string | null>(null)
   const [dropdownPos, setDropdownPos] = useState<{ x: number; y: number }>({
     x: 0,
@@ -124,11 +125,39 @@ export default function AdminProductList() {
     }
   }, [showImageModal])
 
+  const applySortFilter = (filter: string, list: any[]) => {
+    const toTime = (date?: string) => (date ? new Date(date).getTime() : 0)
+
+    switch (filter) {
+      case "noCategory":
+        return list.filter(p => !p.category || !p.category.category_name)
+      case "quantityZero":
+        return list.filter(p => p.total_quantity === 0)
+      case "quantityThree":
+        return list.filter(p => p.total_quantity === 3)
+      case "noDiscount":
+        return list.filter(
+          p => !p.discount_percentage_tag || p.discount_percentage_tag === 0
+        )
+      case "hasDiscount":
+        return list.filter(p => p.discount_percentage_tag > 0)
+      default:
+        // Default = sort by updated_at desc, then created_at desc
+        return [...list].sort((a, b) => {
+          const updatedDiff = toTime(b.updated_at) - toTime(a.updated_at)
+          if (updatedDiff !== 0) return updatedDiff
+          return toTime(b.created_at) - toTime(a.created_at)
+        })
+    }
+  }
+
   const fetchProducts = async () => {
     try {
       const data = await getAllProducts()
-      setAllProducts(data) // ← ADD THIS LINE
-      setProducts(data)
+      setAllProducts(data)
+      const initial = applySortFilter(sortFilter, data) // applies default "newest first"
+      setProducts(initial)
+      setCurrentPage(1)
     } catch (err) {
       console.error("Error fetching products:", err)
       setErrorMessage("Failed to load products.")
@@ -541,36 +570,11 @@ export default function AdminProductList() {
           <div className="flex items-center gap-2">
             <select
               id="sort"
+              value={sortFilter}
               onChange={e => {
                 const filter = e.target.value
-                let sorted = [...allProducts] // Use full product list for consistent filtering
-                switch (filter) {
-                  case "noCategory":
-                    sorted = allProducts.filter(
-                      p => !p.category || !p.category.category_name
-                    )
-                    break
-                  case "quantityZero":
-                    sorted = allProducts.filter(p => p.total_quantity === 0)
-                    break
-                  case "quantityThree":
-                    sorted = allProducts.filter(p => p.total_quantity === 3)
-                    break
-                  case "noDiscount":
-                    sorted = allProducts.filter(
-                      p =>
-                        !p.discount_percentage_tag ||
-                        p.discount_percentage_tag === 0
-                    )
-                    break
-                  case "hasDiscount":
-                    sorted = allProducts.filter(
-                      p => p.discount_percentage_tag > 0
-                    )
-                    break
-                  default:
-                    sorted = [...allProducts] // Restore original unfiltered list
-                }
+                setSortFilter(filter)
+                const sorted = applySortFilter(filter, allProducts)
                 setCurrentPage(1)
                 setProducts(sorted)
               }}

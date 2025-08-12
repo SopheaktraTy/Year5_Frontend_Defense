@@ -141,8 +141,6 @@ const AdminOrderSummaryList = () => {
       {/* ✅ Table */}
       {loading ? (
         <p>Loading...</p>
-      ) : paginatedOrders.length === 0 ? (
-        <p className="text-gray-600">No orders found.</p>
       ) : (
         <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full text-sm text-left">
@@ -157,77 +155,88 @@ const AdminOrderSummaryList = () => {
                 <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
+
             <tbody>
-              {paginatedOrders.map(order => (
-                <tr
-                  key={order.id}
-                  className="border-t hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-4 py-3 font-medium text-blue-600">
-                    {order.order_no}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src={order.user?.image || "/placeholder.png"}
-                        alt="User"
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-full object-cover border"
-                      />
-                      <div>
-                        <div className="font-medium">
-                          {order.user
-                            ? `${order.user.firstname ?? ""} ${
-                                order.user.lastname ?? ""
-                              }`
-                            : "Guest"}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {order.user?.email ?? "No email"}
+              {paginatedOrders.length > 0 ? (
+                paginatedOrders.map(order => (
+                  <tr
+                    key={order.id}
+                    className="border-t hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-blue-600">
+                      {order.order_no}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={order.user?.image || "/placeholder.png"}
+                          alt="User"
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 rounded-full object-cover border"
+                        />
+                        <div>
+                          <div className="font-medium">
+                            {order.user
+                              ? `${order.user.firstname ?? ""} ${
+                                  order.user.lastname ?? ""
+                                }`
+                              : "Guest"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {order.user?.email ?? "No email"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-800">
-                    {order.user?.phone_number ?? "-"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <ul className="list-disc ml-4 space-y-1">
-                      {order.order_items.map((item, idx) => (
-                        <li key={idx}>
-                          x{item.quantity} –{" "}
-                          {truncateProductName(item.product.product_name)}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="px-4 py-3 text-red-600 font-semibold">
-                    ${Number(order.total_amount).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {dayjs(order.create_at).format("MMM DD, YYYY")}
-                  </td>
-                  {/* ✅ Status Toggle */}
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleToggleStatus(order.id, order.status)}
-                      disabled={togglingId === order.id}
-                      className={`px-3 py-1 rounded border font-medium text-xs transition-colors ${
-                        order.status === "not_yet_approved"
-                          ? "border-red-400 text-red-600 bg-red-50 hover:bg-red-100"
-                          : "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
-                      }`}
-                    >
-                      {togglingId === order.id
-                        ? "Updating..."
-                        : order.status === "not_yet_approved"
-                        ? "❌ Not Yet Approved"
-                        : "✅ Approved"}
-                    </button>
+                    </td>
+                    <td className="px-4 py-3 text-gray-800">
+                      {order.user?.phone_number ?? "-"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <ul className="list-disc ml-4 space-y-1">
+                        {order.order_items.map((item, idx) => (
+                          <li key={idx}>
+                            x{item.quantity} –{" "}
+                            {truncateProductName(item.product.product_name)}
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="px-4 py-3 text-red-600 font-semibold">
+                      ${Number(order.total_amount).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500">
+                      {dayjs(order.create_at).format("MMM DD, YYYY")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() =>
+                          handleToggleStatus(order.id, order.status)
+                        }
+                        disabled={togglingId === order.id}
+                        className={`px-3 py-1 rounded border font-medium text-xs transition-colors ${
+                          order.status === "not_yet_approved"
+                            ? "border-red-400 text-red-600 bg-red-50 hover:bg-red-100"
+                            : "border-green-400 text-green-600 bg-green-50 hover:bg-green-100"
+                        }`}
+                      >
+                        {togglingId === order.id
+                          ? "Updating..."
+                          : order.status === "not_yet_approved"
+                          ? "❌ Not Yet Approved"
+                          : "✅ Approved"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  {/* 🔢 colspan must match the number of columns (7 here) */}
+                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                    No orders found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

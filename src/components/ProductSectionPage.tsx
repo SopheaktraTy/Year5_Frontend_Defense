@@ -168,13 +168,12 @@ const ProductSectionPage: React.FC = () => {
                 {section.products.map(product => (
                   <div
                     key={product.id}
-                    className="snap-start min-w-[220px] w-[220px] h-[320px] flex-shrink-0"
+                    className="snap-start min-w-[220px] w-[220px] flex-shrink-0 flex items-stretch"
                   >
-                    <div className="w-full h-full">
-                      <ProductCardComponent
-                        product={mapToProductInCategory(product)}
-                      />
-                    </div>
+                    <ProductCardComponent
+                      product={mapToProductInCategory(product)}
+                      className="flex-1 h-full"
+                    />
                   </div>
                 ))}
               </div>

@@ -176,14 +176,12 @@ const CustomerProductSectionPage: React.FC = () => {
                 {section.products.map(product => (
                   <div
                     key={product.id}
-                    className="snap-start min-w-[220px] w-[220px] h-[320px] flex-shrink-0"
+                    className="snap-start min-w-[220px] w-[220px] flex-shrink-0 flex items-stretch" // ✅ ensures equal height
                   >
-                    <div className="w-full h-full">
-                      {/* ✅ Customer card instead of admin card */}
-                      <CustomerProductCardComponent
-                        product={mapToProductInCategory(product)}
-                      />
-                    </div>
+                    <CustomerProductCardComponent
+                      product={mapToProductInCategory(product)}
+                      className="flex-1 h-full" // ✅ fill parent height
+                    />
                   </div>
                 ))}
               </div>

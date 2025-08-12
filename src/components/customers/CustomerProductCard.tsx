@@ -6,6 +6,7 @@ import PopupProductDetailPage from "../../components/customers/CustomerPopupProd
 
 interface ProductCardProps {
   product: ProductInCategory
+  className?: string
 }
 
 const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
@@ -29,7 +30,7 @@ const CustomerProductCardComponent: React.FC<ProductCardProps> = ({
     <>
       <div
         onClick={handleCardClick}
-        className="relative group border border-gray-200 rounded-lg bg-white overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
+        className="relative group border border-gray-200 rounded-lg bg-white overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${className}"
       >
         {/* Discount Badge */}
         {product.discount_percentage_tag > 0 && (
